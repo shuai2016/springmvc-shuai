@@ -15,6 +15,6 @@ public class HelloWorld {
 	@RequestMapping("/helloworld")
 	public String hello(){
 		System.out.println("hello world");
-		return "/success";
+		return "success";
 	}
 }
