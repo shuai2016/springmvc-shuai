@@ -21,15 +21,112 @@
 
 5. RequestMapping_请求参数&请求头
 
+   ```java
+   @RequestMapping(value = "testParamsAndHeaders"
+         , params = {"username", "age!=10"}
+         , headers = {"Accept-Language=zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"})
+   public String testParamsAndHeaders() {
+      return SUCCESS;
+   }
+   ```
+
+   1. 使用 params 和 headers 来更加精确的映射请求，params 和 headers 支持简单的表达式。
+
 6. RequestMapping_Ant路径
+
+   ```java
+   @RequestMapping("/testAntPath/*/abc")
+   public String testAntPath(){
+      return SUCCESS;
+   }
+   ```
+
+   1. Ant 风格资源地址支持3种匹配符：
+      1. ?：匹配文件名中的一个字符
+      2. *：匹配文件名中的任意字符
+      3. **：匹配多层路径
 
 7. RequestMapping_PathVariable
 
-8. RequestMapping_HiddentHttpMethodFilter过滤器
+   ```java
+   @RequestMapping("/testPathVariable/{id}")
+   public String testPathVariable(@PathVariable("id") Integer id) {
+      System.out.println("testPathVariable : " + id);
+      return SUCCESS;
+   }
+   ```
+
+   1. @PathVariable 可以来映射 URL 中的占位符到目标方法的参数中。
+
+8. RequestMapping_HiddenHttpMethodFilter过滤器
+
+   1. HTTP协议里面，四个表示操作方式的动词：GET、POST、PUT、DELETE，它们分别对应四种基本操作：GET用来获取资源，POST用来新建资源，PUT用来更新资源，DELETE用来删除资源。
+
+   2. HiddenHttpMethodFilter：浏览器form表单只支持GET 与 POST 请求，而DELETE、PUT 等 method 并不支持，Spring3.0 添加了一个过滤器，可以将这些请求转换为标准的http方法，使得支持GET、POST、PUT 与 DELETE 请求。
+
+   3. 发送PUT或DELETE请求
+
+      1. 配置HiddenHttpMethodFilter
+
+         ```xml
+         <filter>
+             <filter-name>hiddenHttpMethodFilter</filter-name>
+             <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+         </filter>
+         <filter-mapping>
+             <filter-name>hiddenHttpMethodFilter</filter-name>
+             <url-pattern>/*</url-pattern>
+         </filter-mapping>
+         ```
+
+      2. 请求时，表单携带一个name="_method" 的隐藏域，值为DELETE 或 PUT
+
+         ```html
+         <form action="testRest/1" method="post">
+             <input type="hidden" name="_method" value="PUT">
+             <input type="submit" value="TestRest PUT">
+         </form>
+         ```
+
+      3. Controller方法
+
+         ```java
+         @RequestMapping(value = "/testRest/{id}", method = RequestMethod.PUT)
+         public String testRestPut(@PathVariable("id") Integer id) {
+            System.out.println("TestRest PUT : " + id);
+            return SUCCESS;
+         }
+         ```
 
 9. RequestParam注解
 
+   ```java
+   @RequestMapping(value = "/testRequestParam")
+   public String testRequestParam(@RequestParam(value = "username") String un
+         , @RequestParam(value = "age",required = false,defaultValue = "0") int age) {
+      System.out.println("testRequestParam,username : " + un + " , age : " + age);
+      return SUCCESS;
+   }
+   ```
+
+   1. @RequestParam 来映射请求参数
+      1. value：请求参数的参数名
+      2. required：该参数是否必须，默认 true
+      3. defaultValue：请求参数的默认值
+
 10. RequestHeader注解
+
+   ```java
+   @RequestMapping(value = "/testRequestHeader")
+   public String testRequestHeader(@RequestHeader(value = "Accept-Language") String al) {
+      System.out.println("testRequestHeader,Accept-Language : " + al);
+      return SUCCESS;
+   }
+   ```
+
+   1. 映射请求头信息
+   2. 用法同@RequestParam
+   3. 了解
 
 11. CookieValue注解
 
