@@ -2,6 +2,7 @@ package xin.yangshuai.springmvc.handlers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import xin.yangshuai.springmvc.entities.User;
 
 /**
  * SpringMVCTest
@@ -12,6 +13,18 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class SpringMVCTest {
 	public static final String SUCCESS = "success";
+
+	@RequestMapping(value = "/testPojo")
+	public String testPojo(User user) {
+		System.out.println("testPojo,user : " + user);
+		return SUCCESS;
+	}
+
+	@RequestMapping(value = "/testCookieValue")
+	public String testCookieValue(@CookieValue(value = "JSESSIONID") String sessionId) {
+		System.out.println("testCookieValue,sessionId : " + sessionId);
+		return SUCCESS;
+	}
 
 	@RequestMapping(value = "/testRequestHeader")
 	public String testRequestHeader(@RequestHeader(value = "Accept-Language") String al) {

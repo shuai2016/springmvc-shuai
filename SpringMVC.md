@@ -116,21 +116,78 @@
 
 10. RequestHeader注解
 
-   ```java
-   @RequestMapping(value = "/testRequestHeader")
-   public String testRequestHeader(@RequestHeader(value = "Accept-Language") String al) {
-      System.out.println("testRequestHeader,Accept-Language : " + al);
-      return SUCCESS;
-   }
-   ```
+    ```java
+    @RequestMapping(value = "/testRequestHeader")
+    public String testRequestHeader(@RequestHeader(value = "Accept-Language") String al) {
+       System.out.println("testRequestHeader,Accept-Language : " + al);
+       return SUCCESS;
+    }
+    ```
 
-   1. 映射请求头信息
-   2. 用法同@RequestParam
-   3. 了解
+    1. 映射请求头信息
+    2. 用法同@RequestParam
+    3. 了解
 
 11. CookieValue注解
 
+    ```java
+    @RequestMapping(value = "/testCookieValue")
+    public String testCookieValue(@CookieValue(value = "JSESSIONID") String sessionId) {
+       System.out.println("testCookieValue,sessionId : " + sessionId);
+       return SUCCESS;
+    }
+    ```
+
 12. 使用POJO作为参数
+
+    1. SpringMVC 会按请求参数名和POJO属性名进行自动匹配，自动为该对象填充属性值，支持级联属性。
+
+    2. 实现
+
+       1. Java代码
+
+          ```java
+          @RequestMapping(value = "/testPojo")
+          public String testPojo(User user) {
+             System.out.println("testPojo,user : " + user);
+             return SUCCESS;
+          }
+          ```
+
+       2. html代码
+
+          ```html
+          <form action="testPojo" method="post">
+              <table style="text-align:center ">
+                  <tr>
+                      <td>username</td>
+                      <td><input type="text" name="username"></td>
+                  </tr>
+                  <tr>
+                      <td>password</td>
+                      <td><input type="password" name="password"></td>
+                  </tr>
+                  <tr>
+                      <td>age</td>
+                      <td><input type="text" name="age"></td>
+                  </tr>
+                  <tr>
+                      <td>email</td>
+                      <td><input type="text" name="email"></td>
+                  </tr>
+                  <tr>
+                      <td>province</td>
+                      <td><input type="text" name="address.province"></td>
+                  </tr>
+                  <tr>
+                      <td>city</td>
+                      <td><input type="text" name="address.city"></td>
+                  </tr>
+                  <tr>
+                      <td colspan="2"><input type="submit" value="submit"></td>
+                  </tr>
+              </table>
+          ```
 
 13. 使用Servlet原生API作为参数
 

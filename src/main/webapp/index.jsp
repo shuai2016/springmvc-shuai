@@ -27,5 +27,38 @@
 <a href="testRequestParam?username=qwe&age=12">testRequestParam</a>
 <br>
 <a href="testRequestHeader">testRequestHeader</a>
+<br>
+<a href="testCookieValue">testCookieValue</a>
+<form action="testPojo" method="post">
+    <table style="text-align:center ">
+        <tr>
+            <td>username</td>
+            <td><input type="text" name="username"></td>
+        </tr>
+        <tr>
+            <td>password</td>
+            <td><input type="password" name="password"></td>
+        </tr>
+        <tr>
+            <td>age</td>
+            <td><input type="text" name="age"></td>
+        </tr>
+        <tr>
+            <td>email</td>
+            <td><input type="text" name="email"></td>
+        </tr>
+        <tr>
+            <td>province</td>
+            <td><input type="text" name="address.province"></td>
+        </tr>
+        <tr>
+            <td>city</td>
+            <td><input type="text" name="address.city"></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="submit" value="submit"></td>
+        </tr>
+    </table>
+</form>
 </body>
 </html>
