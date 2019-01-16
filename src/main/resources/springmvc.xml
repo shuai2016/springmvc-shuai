@@ -5,12 +5,6 @@
 
     <context:component-scan base-package="xin.yangshuai.springmvc.handlers"/>
 
-    <!-- Spring3.1开始的注解 HandlerMapping -->
-    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
-
-    <!-- Spring3.1开始的注解HandlerAdapter -->
-    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>
-
     <!--配置视图解析器：如何把handle 方法返回值解析为实际的物理视图 -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/views/"></property>

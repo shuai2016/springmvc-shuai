@@ -2,7 +2,14 @@ package xin.yangshuai.springmvc.handlers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import xin.yangshuai.springmvc.entities.User;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * SpringMVCTest
@@ -11,8 +18,59 @@ import xin.yangshuai.springmvc.entities.User;
  * @date 2019/1/15
  */
 @Controller
+@SessionAttributes(value = {"user"}, types = {Date.class})
 public class SpringMVCTest {
 	public static final String SUCCESS = "success";
+
+	//@ModelAttribute
+	public void getUser(@RequestParam("id") Integer id, Map<String, Object> map) {
+		System.out.println("getUser");
+		User bb = null;
+		if (id != null) {
+			bb = new User(2, "BB", "123", 20, "a@aa.com");
+			map.put("user", bb);
+		}
+		System.out.println(bb);
+	}
+
+	@RequestMapping(value = "/testModelAttribute")
+	public String testModelAttribute(User user) {
+		System.out.println("testModelAttribute");
+		System.out.println(user);
+		return SUCCESS;
+	}
+
+	@RequestMapping(value = "/testSessionAttributes")
+	public String testSessionAttributes(Map<String, Object> map) {
+		System.out.println("testSessionAttributes");
+		map.put("time", new Date());
+		map.put("user", new User(1, "A", "123456", 18, "a@aa.com"));
+		return SUCCESS;
+	}
+
+	@RequestMapping(value = "/testMap")
+	public String testMap(Map<String, Object> map) {
+		System.out.println("testMap");
+		map.put("time", new Date());
+		return SUCCESS;
+	}
+
+	@RequestMapping(value = "/testModelAndView")
+	public ModelAndView testModelAndView() {
+		System.out.println("testModelAndView");
+		ModelAndView modelAndView = new ModelAndView(SUCCESS);
+		modelAndView.addObject("time", new Date());
+		return modelAndView;
+	}
+
+	@RequestMapping(value = "/testServletAPI")
+	public String testServletAPI(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		System.out.println("testServletAPI");
+		System.out.println(request);
+		System.out.println(response);
+		System.out.println(session);
+		return SUCCESS;
+	}
 
 	@RequestMapping(value = "/testPojo")
 	public String testPojo(User user) {

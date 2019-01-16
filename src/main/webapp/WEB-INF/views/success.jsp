@@ -12,5 +12,13 @@
 </head>
 <body>
 Hello World !
+<br>
+request time : ${requestScope.time}
+<br>
+request user : ${requestScope.user}
+<br>
+session time : ${sessionScope.time}
+<br>
+session user : ${sessionScope.user}
 </body>
 </html>

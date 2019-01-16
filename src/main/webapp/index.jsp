@@ -29,6 +29,7 @@
 <a href="testRequestHeader">testRequestHeader</a>
 <br>
 <a href="testCookieValue">testCookieValue</a>
+<br>
 <form action="testPojo" method="post">
     <table style="text-align:center ">
         <tr>
@@ -54,6 +55,35 @@
         <tr>
             <td>city</td>
             <td><input type="text" name="address.city"></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="submit" value="submit"></td>
+        </tr>
+    </table>
+</form>
+<br>
+<a href="testServletAPI">testServletAPI</a>
+<br>
+<a href="testModelAndView">testModelAndView</a>
+<br>
+<a href="testMap">testMap</a>
+<br>
+<a href="testSessionAttributes">testSessionAttributes</a>
+<br>
+<form action="testModelAttribute" method="post">
+    <table style="text-align:center ">
+        <tr>
+            <input type="hidden" name="id" value="1">
+            <td>username</td>
+            <td><input type="text" name="username" value="Tom"></td>
+        </tr>
+        <tr>
+            <td>age</td>
+            <td><input type="text" name="age" value="18"></td>
+        </tr>
+        <tr>
+            <td>email</td>
+            <td><input type="text" name="email" value="qwe@qq.com"></td>
         </tr>
         <tr>
             <td colspan="2"><input type="submit" value="submit"></td>
