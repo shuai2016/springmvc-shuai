@@ -116,17 +116,17 @@
 
 10. RequestHeader注解
 
-    ```java
-    @RequestMapping(value = "/testRequestHeader")
-    public String testRequestHeader(@RequestHeader(value = "Accept-Language") String al) {
-       System.out.println("testRequestHeader,Accept-Language : " + al);
-       return SUCCESS;
-    }
-    ```
+  ```java
+  @RequestMapping(value = "/testRequestHeader")
+  public String testRequestHeader(@RequestHeader(value = "Accept-Language") String al) {
+     System.out.println("testRequestHeader,Accept-Language : " + al);
+     return SUCCESS;
+  }
+  ```
 
-    1. 映射请求头信息
-    2. 用法同@RequestParam
-    3. 了解
+  1. 映射请求头信息
+  2. 用法同@RequestParam
+  3. 了解
 
 11. CookieValue注解
 
@@ -191,21 +191,114 @@
 
 13. 使用Servlet原生API作为参数
 
+    ```java
+    @RequestMapping(value = "/testServletAPI")
+    public String testServletAPI(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+       System.out.println("testServletAPI");
+       System.out.println(request);
+       System.out.println(response);
+       System.out.println(session);
+       return SUCCESS;
+    }
+    ```
+
+    1. HttpServletRequest
+    2. HttpServletResponse
+    3. HttpSession
+    4. java.security.Principal
+    5. Locale
+    6. InputStream
+    7. OutputStream
+    8. Reader
+    9. Writer
+
 14. 处理模型数据之ModelAndView
+
+    ```java
+    @RequestMapping(value = "/testModelAndView")
+    public ModelAndView testModelAndView() {
+       System.out.println("testModelAndView");
+       ModelAndView modelAndView = new ModelAndView(SUCCESS);
+       modelAndView.addObject("time",new Date());
+       return modelAndView;
+    }
+    ```
+
+    1. 目标方法的返回值可以是ModelAndView类型，其中可以包含视图和模型信息
+    2. SpringMVC 会把 ModelAndView 的 model 中的数据放到 request 域对象中。
 
 15. 处理模型数据之Map
 
+    ```java
+    @RequestMapping(value = "/testMap")
+    public String testMap(Map<String,Object> map) {
+       System.out.println("testMap");
+       map.put("time",new Date());
+       return SUCCESS;
+    }
+    ```
+
+    1. 目标方法可以添加Map 类型（实际上也可以是Model 类型或 ModelMap 类型）的参数
+
 16. 处理模型数据之SessionAttributes注解
+
+    ```java
+    @Controller
+    @SessionAttributes(value = {"user"}, types = {Date.class})
+    public class SpringMVCTest {
+       public static final String SUCCESS = "success";
+       
+       @RequestMapping(value = "/testSessionAttributes")
+       public String testSessionAttributes(Map<String, Object> map) {
+          System.out.println("testSessionAttributes");
+          map.put("time", new Date());
+          map.put("user", new User("A", "123", 18, "a@aa.com"));
+          return SUCCESS;
+       }
+    }
+    ```
+
+    1. 该注解只能放到类的上面，而不能修饰方法。
+    2. 通过属性名指定需要放到会话中的属性（实际上使用的是 value 属性值）
+    3. 通过模型属性的对象类型指定哪些模型属性需要放到会话中（实际上使用的是 types 属性）
 
 17. ModelAttribute注解值使用场景
 
 18. ModelAttribute注解之实例代码
+
+    ```java
+    @ModelAttribute
+    public void getUser(@RequestParam("id")Integer id, Map<String,Object> map){
+       System.out.println("getUser");
+       User bb = null;
+       if (id != null){
+          bb = new User(2, "BB", "123", 20, "a@aa.com");
+          map.put("user",bb);
+       }
+       System.out.println(bb);
+    }
+    
+    @RequestMapping(value = "/testModelAttribute")
+    public String testModelAttribute(@ModelAttribute("user") User user) {
+       System.out.println("testModelAttribute");
+       System.out.println(user);
+       return SUCCESS;
+    }
+    ```
+
+    1. @ModelAttribute注解可以使用在方法上，也可以用来修饰目标方法POJO类型的入参
 
 19. ModelAttribute注解之运行原理
 
 20. ModelAttribute注解之源码分析
 
 21. 如何确定目标方法POJO类型参数
+
+    1. 确定一个key：目标方法的POJO属性使用@ModelAttribute修饰，则key值即为@ModelAttribute 的value 属性值，未使用@ModelAttribute修饰，key值为类名首字母小写。
+    2. 在implicitModel 中查找 key 对应的对象，若存在（在@ModelAttribute 标记的方法中在Map中保存过，且Map的key和1中 确定的key 一致），则作为入参传入。
+    3. 若不存在key 对应的对象，则检查当前的Handler 是否使用 @SessionAttributes 注解修饰，若使用了该注解，且 @SessionAttributes 注解的 value 属性值中包含了 key，则会从 HttpSession 中来获取 key 所对应的 value，若存在则直接传入到目标方法的入参中，若不存在则将抛出异常。
+    4. 若 Handler 没有标识 @SessionAttributes 注解或 @SessionAttributes 注解的 value 值中不包含 key，则会通过反射来创建 POJO 类型的参数，传入为目标方法的参数。
+    5. SpringMVC 会把 key 和 POJO 类型的对象保存到 implicitModel 中，进而会保存到 request 中。
 
 22. ModelAttribute注解修饰POJO类型的入参
 
