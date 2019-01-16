@@ -306,6 +306,9 @@
 
 24. 视图解析流程分析
 
+    1. 请求处理方法执行完成后，最终返回一个ModelAndView对象。对于那些返回String，View 或 ModelMap 等类型的处理方法，SpringMVC也会在内部将它们装配成一个ModelAndView对象，它包含了逻辑名和模型对象的视图
+    2. 视图对象由视图解析器负责实例化。由于视图是无状态的，所以它们不会有线程安全的问题。
+
 25. JstlView
 
 26. mvc_view-controller标签
