@@ -311,17 +311,99 @@
 
 25. JstlView
 
+    ```xml
+    <!--配置国际化资源文件-->
+    <bean id="messageSource" class=" org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="i18n"></property>
+        <!-- 支持UTF-8的中文 -->
+        <property name="cacheSeconds" value="0"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+    ```
+
+    1. 配置国际化资源文件
+
 26. mvc_view-controller标签
+
+    ```xml
+    <!--配置直接转发的页面-->
+    <!--可以直接对应转发的页面，而无需再经过 Handler 的方法-->
+    <mvc:view-controller path="/success" view-name="success"/>
+    <!--在实际开发中通常都需要配置mvc:annotation-driven 标签,否则，如果配置了view-controller标签，却没配置annotation-driven标签，会导致普通的映射不起作用-->
+    <mvc:annotation-driven/>
+    ```
 
 27. 自定义视图
 
+    1. 配置一个视图解析器
+
+       ```xml
+       <!--配置视图 BeanNameViewResolver 解析器：使用视图的名字来解析视图-->
+       <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+           <!--通过order属性来定义视图解析器的优先级， order值越小优先级越优先-->
+           <property name="order" value="100"/>
+       </bean>
+       ```
+
+    2. 创建一个视图
+
+       ```java
+       @Component
+       public class HelloView implements View {
+          @Override
+          public String getContentType() {
+             return "text/html";
+          }
+       
+          @Override
+          public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+             response.getWriter().println("hello view, time : " + new Date());
+          }
+       }
+       ```
+
 28. 重定向
+
+    1. 一般情况下，控制器方法返回字符串类型的值会被当成逻辑视图名处理。
+    2. 如果返回的字符串中带有forward: 或 redirect: 前缀时，SpringMVC 会对它们进行特殊处理：将forward: 和 redirect: 当成指示符，其后的字符串作为URL来处理（/都代表当前web应用）
 
 29. RESTRUL_CRUD_需求
 
 30. RESTRUL_CRUD_显示所有员工信息
 
 31. RESTRUL_CRUD_添加操作&表单标签
+
+    ```jsp
+    %@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+    <html>
+    <head>
+        <title>user</title>
+    </head>
+    <body>
+    <form:form action="user" method="POST" modelAttribute="user">
+        <table style="text-align:center ">
+            <tr>
+                <td>username</td>
+                <td><form:input path="username"/></td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td><form:password path="password"/></td>
+            </tr>
+            <tr>
+                <td>province</td>
+                <td><form:input path="address.province"/></td>
+            </tr>
+            <tr>
+                <td colspan="2"><input type="submit" value="submit"></td>
+            </tr>
+        </table>
+    </form:form>
+    ```
+
+    1. SpringMVC 的表单标签：可以实现将模型数据中的属性和 HTML 表单的元素相绑定，以实现表单数据更便捷编辑和表单值的回显
+    2. 一般情况下，通过GET请求获取表单页面，而通过POST请求提交表单页面，因此获取表单页面和提交表单页面的URL 是相同的。只要满足该最佳条件的契约，\<form:form\>标签就无需通过action属性指定表单提交的URL
+    3. 可以通过modelAttribute属性指定绑定的模型属性，若没有指定该属性，则默认从request域对象中读取command的表单bean，如果该属性值也不存在，则会发生错误。
 
 32. RESTRUL_CRUD_删除操作&处理静态资源
 

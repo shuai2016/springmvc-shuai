@@ -18,9 +18,27 @@ import java.util.Map;
  * @date 2019/1/15
  */
 @Controller
-@SessionAttributes(value = {"user"}, types = {Date.class})
+//@SessionAttributes(value = {"user"}, types = {Date.class})
 public class SpringMVCTest {
 	public static final String SUCCESS = "success";
+
+	@RequestMapping("testRedirect")
+	public String testRedirect(){
+		System.out.println("testRedirect");
+		return "redirect:/index.jsp";
+	}
+
+	@RequestMapping("testForward")
+	public String testForward(){
+		System.out.println("testForward");
+		return "forward:/index.jsp";
+	}
+
+	@RequestMapping("testView")
+	public String testView(){
+		System.out.println("testView");
+		return "helloView";
+	}
 
 	//@ModelAttribute
 	public void getUser(@RequestParam("id") Integer id, Map<String, Object> map) {

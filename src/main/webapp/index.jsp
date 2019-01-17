@@ -90,5 +90,14 @@
         </tr>
     </table>
 </form>
+<br>
+<a href="testView">testView</a>
+<br>
+<a href="testRedirect">testRedirect</a>
+<br>
+<a href="testForward">testForward</a>
+
+<br>
+<a href="user">user</a>
 </body>
 </html>

@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-    <context:component-scan base-package="xin.yangshuai.springmvc.handlers"/>
+    <context:component-scan base-package="xin.yangshuai.springmvc"/>
 
     <!--配置视图解析器：如何把handle 方法返回值解析为实际的物理视图 -->
+    <!--优先级较低 -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/views/"></property>
         <property name="suffix" value=".jsp"></property>
+    </bean>
+
+    <!--配置视图 BeanNameViewResolver 解析器：使用视图的名字来解析视图-->
+    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+        <!--通过order属性来定义视图解析器的优先级， order值越小优先级越优先-->
+        <property name="order" value="100"/>
     </bean>
 
     <!--配置国际化资源文件-->
@@ -18,4 +25,10 @@
         <property name="cacheSeconds" value="0"/>
         <property name="defaultEncoding" value="UTF-8"/>
     </bean>
+
+    <!--配置直接转发的页面-->
+    <!--可以直接对应转发的页面，而无需再经过 Handler 的方法-->
+    <mvc:view-controller path="/success" view-name="success"/>
+    <!--在实际开发中通常都需要配置mvc:annotation-driven 标签,否则，如果配置了view-controller标签，却没配置annotation-driven标签，会导致普通的映射不起作用-->
+    <mvc:annotation-driven/>
 </beans>
