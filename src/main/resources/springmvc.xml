@@ -26,9 +26,21 @@
         <property name="defaultEncoding" value="UTF-8"/>
     </bean>
 
+    <mvc:default-servlet-handler/>
+
     <!--配置直接转发的页面-->
     <!--可以直接对应转发的页面，而无需再经过 Handler 的方法-->
     <mvc:view-controller path="/success" view-name="success"/>
     <!--在实际开发中通常都需要配置mvc:annotation-driven 标签,否则，如果配置了view-controller标签，却没配置annotation-driven标签，会导致普通的映射不起作用-->
-    <mvc:annotation-driven/>
+    <mvc:annotation-driven conversion-service="conversionService"/>
+
+    <!--配置ConversionService-->
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <ref bean="userConverter"/>
+            </set>
+        </property>
+    </bean>
+
 </beans>

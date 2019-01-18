@@ -1,6 +1,7 @@
 package xin.yangshuai.springmvc.handlers;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import xin.yangshuai.springmvc.entities.User;
@@ -21,6 +22,21 @@ import java.util.Map;
 //@SessionAttributes(value = {"user"}, types = {Date.class})
 public class SpringMVCTest {
 	public static final String SUCCESS = "success";
+
+	/**
+	 * 不自动绑定对象中的roleSet 属性，另行处理
+	 * @param dataBinder
+	 */
+	@InitBinder
+	public void initBinder(WebDataBinder dataBinder){
+		dataBinder.setDisallowedFields("roleSet");
+	}
+
+	@RequestMapping("testConversionServiceConverter")
+	public String testConverter(@RequestParam("user") User user){
+		System.out.println(user);
+		return SUCCESS;
+	}
 
 	@RequestMapping("testRedirect")
 	public String testRedirect(){

@@ -10,6 +10,7 @@
 <html>
 <head>
     <title>user</title>
+    <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
 </head>
 <body>
 <form:form action="user" method="POST" modelAttribute="user">
@@ -25,6 +26,14 @@
         <tr>
             <td>age</td>
             <td><form:input path="age"/></td>
+        </tr>
+        <tr>
+            <td>birth</td>
+            <td><form:input path="birth"/></td>
+        </tr>
+        <tr>
+            <td>salary</td>
+            <td><form:input path="salary"/></td>
         </tr>
         <tr>
             <td>email</td>
@@ -43,5 +52,14 @@
         </tr>
     </table>
 </form:form>
+<form action="testConversionServiceConverter">
+    <input type="text" name="user" placeholder="username-password-age-email" size="50">
+    <input type="submit" value="submit">
+</form>
+<script>
+    $(function(){
+        alert("hello jQuery");
+    })
+</script>
 </body>
 </html>

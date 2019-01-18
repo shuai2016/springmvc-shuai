@@ -407,19 +407,144 @@
 
 32. RESTRUL_CRUD_删除操作&处理静态资源
 
+    1. 为什么会有这样的问题：
+       1. 优雅的REST 风格的资源URL 不希望 .html 或 .do 等后缀
+       2. 若将DispatcherServlet 请求映射配置为 /，则SpringMVC 将捕获WEB 容器的所有请求，包括静态资源请求，SpringMVC 会将它们当成一个普通请求处理，找不到对应处理器将导致错误。
+    2. 解决：在SpringMVC 的配置文件中配置`<mvc:default-servlet-handler/>`
+       1. 对请求进行筛选，如果发现是没有经过映射的请求，就将该请求交由WEB 应用服务器默认的Servlet，如果不是静态资源的请求，才由DispatcherServlet 继续处理
+       2. 保证一般请求能成功，添加配置`<mvc:annotation-driven/>`
+
 33. RESTRUL_CRUD_修改操作
 
 34. 数据绑定流程分析
 
 35. 自定义类型转换器
 
+    1. 创建一个转换器类
+
+       ```java
+       @Component
+       public class UserConverter implements Converter<String,User> {
+          @Override
+          public User convert(String source) {
+             //username-password-age-email
+             if(StringUtils.isNotBlank(source)){
+                String[] split = source.split("-");
+                if (split.length == 4){
+                   User user = new User(split[0], split[1], Integer.parseInt(split[2]), split[3]);
+                   System.out.println("UserConverter-source:"+source);
+                   System.out.println("UserConverter-user:"+user);
+                   return user;
+                }
+             }
+             return null;
+          }
+       }
+       ```
+
+    2. 配置文件中配置自定义转换器
+
+       ```xml
+       <mvc:annotation-driven conversion-service="conversionService"/>
+       
+       <!--配置ConversionService-->
+       <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+           <property name="converters">
+               <set>
+                   <ref bean="userConverter"/>
+               </set>
+           </property>
+       </bean>
+       ```
+
 36. annotation-driven配置
+
+    1. `<mvc:annotation-driven />`会自动注册RequestMappingHandlerMapping、RequestMappingHandlerAdapter与ExceptionHandlerExceptionResolver三个bean
+    2. 还将提供以下支持：
+       1. 支持使用ConversionService实例对表单参数进行类型转换
+       2. 支持使用@NumberFormat annotation、@DateTimeFormat注解完成数据类型的格式化
+       3. 支持使用@Valid注解对JavaBean实例进行JSR303验证
+       4. 支持使用@RequestBody 和 @ResponseBody注解
 
 37. InitBinder注解
 
+    ```java
+    /**
+     * 不自动绑定对象中的roleSet 属性，另行处理
+     * @param dataBinder
+     */
+    @InitBinder
+    public void initBinder(WebDataBinder dataBinder){
+       dataBinder.setDisallowedFields("roleSet");
+    }
+    ```
+
+    1. 由@InitBinder标识的方法，可以对WebDataBinder对象进行初始化。WebDataBinder 是 DataBinder 的子类，用于完成由表单字段到JavaBean属性的绑定
+    2. @InitBinder方法不能有返回值，它必须声明为void
+    3. @InitBinder方法的参数通常是WebDataBinder
+
 38. 数据的格式化
 
+    1. 对日期和数字进行格式化
+
+       1. 配置`<mvc:annotation-driven/>`
+
+       2. POJO类使用注解设置数据格式
+
+          ```java
+          @DateTimeFormat(pattern = "yyyy-MM-dd")
+          private Date birth;
+          @NumberFormat(pattern = "#,###,###.##")
+          private Float salary;
+          ```
+
+    2. 收集数据转换失败信息，使用BindingResult
+
+       ```java
+       @RequestMapping(value = "user", method = RequestMethod.POST)
+       public String add(User user, BindingResult result) {
+          System.out.println(user);
+          if (result.getErrorCount() > 0) {
+             System.out.println("出错了");
+             List<FieldError> fieldErrors = result.getFieldErrors();
+             for (FieldError fieldError : fieldErrors) {
+                System.out.println(fieldError.getField() + " : " + fieldError.getDefaultMessage());
+             }
+          }
+          return "user/user";
+       }
+       ```
+
+    3. 使用自定义的数据转换器并使数据格式化生效，自定义的数据转换器需要配置为FormattingConversionServiceFactoryBean类的属性
+
+       ```xml
+       <mvc:annotation-driven conversion-service="conversionService"/>
+       
+       <!--配置ConversionService-->
+       <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+           <property name="converters">
+               <set>
+                   <ref bean="userConverter"/>
+               </set>
+           </property>
+       </bean>
+       ```
+
 39. JSR303数据校验
+
+    1. 如何校验
+       1. JSR 303
+          1. JSR 303 是 Java 为 Bean 数据合法性校验提供的标准框架，它已经包含在 JavaEE 6.0中。
+          2. JSR 303 通过在 Bean属性上标注类似于 @NotNull、@Max 等标准的注解指定校验规则，并通过标准的验证接口对Bean进行验证
+          3. Hibernate Validator 是 JSR 303 的一个参考实现，除支持所有标准的校验注解外，它还支持以下的扩展注解，如：@Email
+       2. 校验
+          1. 使用JSR 303 验证标准
+          2. 加入 hibernate validator 验证框架
+          3. 在 SpringMVC 配置文件中添加`<mvc:annotation-driven/>`
+          4. 需要在bean 的属性上添加对应的注解
+          5. 在目标方法 bean 类型的前面添加 @Valid 注解
+    2. 验证出错转向到哪个页面
+    3. 错误消息，如何显示，如何把错误消息进行国际化
 
 40. 错误消息的显示及国际化
 

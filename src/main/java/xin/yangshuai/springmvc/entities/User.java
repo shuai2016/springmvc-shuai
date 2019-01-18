@@ -1,5 +1,10 @@
 package xin.yangshuai.springmvc.entities;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.NumberFormat;
+
+import java.util.Date;
+
 /**
  * User
  *
@@ -11,6 +16,10 @@ public class User {
 	private String username;
 	private String password;
 	private int age;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date birth;
+	@NumberFormat(pattern = "#,###,###.##")
+	private Float salary;
 	private String email;
 	private Address address;
 
@@ -19,6 +28,13 @@ public class User {
 
 	public User(int id, String username, String password, int age, String email) {
 		this.id = id;
+		this.username = username;
+		this.password = password;
+		this.age = age;
+		this.email = email;
+	}
+
+	public User(String username, String password, int age, String email) {
 		this.username = username;
 		this.password = password;
 		this.age = age;
@@ -57,6 +73,22 @@ public class User {
 		this.age = age;
 	}
 
+	public Date getBirth() {
+		return birth;
+	}
+
+	public void setBirth(Date birth) {
+		this.birth = birth;
+	}
+
+	public Float getSalary() {
+		return salary;
+	}
+
+	public void setSalary(Float salary) {
+		this.salary = salary;
+	}
+
 	public String getEmail() {
 		return email;
 	}
@@ -80,7 +112,10 @@ public class User {
 				", username='" + username + '\'' +
 				", password='" + password + '\'' +
 				", age=" + age +
+				", birth=" + birth +
+				", salary=" + salary +
 				", email='" + email + '\'' +
+				", address=" + address +
 				'}';
 	}
 }
