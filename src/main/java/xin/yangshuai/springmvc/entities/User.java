@@ -1,8 +1,11 @@
 package xin.yangshuai.springmvc.entities;
 
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;
 
+import javax.validation.constraints.Past;
 import java.util.Date;
 
 /**
@@ -13,13 +16,16 @@ import java.util.Date;
  */
 public class User {
 	private int id;
+	@NotEmpty
 	private String username;
 	private String password;
 	private int age;
+	@Past
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date birth;
 	@NumberFormat(pattern = "#,###,###.##")
 	private Float salary;
+	@Email
 	private String email;
 	private Address address;
 

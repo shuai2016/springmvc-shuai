@@ -1,15 +1,31 @@
 package xin.yangshuai.springmvc.handlers;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import xin.yangshuai.springmvc.entities.User;
+import xin.yangshuai.springmvc.utils.DataUtils;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.ws.spi.http.HttpHandler;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -23,35 +39,89 @@ import java.util.Map;
 public class SpringMVCTest {
 	public static final String SUCCESS = "success";
 
+	@Autowired
+	private ResourceBundleMessageSource messageSource;
+
+	@RequestMapping("testFileUpload")
+	public String testFileUpload(@RequestParam("desc") String desc, @RequestParam("file")MultipartFile file){
+		System.out.println("desc : "+desc);
+		System.out.println(file.getOriginalFilename());
+		return SUCCESS;
+	}
+
+	@RequestMapping("testResponseEntity")
+	public ResponseEntity<byte[]> testResponseEntity(HttpServletRequest request) throws IOException {
+
+		InputStream in = request.getServletContext().getResourceAsStream("/file/wallhaven-680530.jpg");
+		byte[] body = new byte[in.available()];
+		in.read(body);
+
+		String fileName = "图片.jpg";
+		/**
+		 * 如果是火狐,解决火狐中文名乱码问题
+		 */
+		if (DataUtils.getBrowser(request).equals("FF")) {
+			fileName = new String(fileName.getBytes("UTF-8"), "iso-8859-1");
+		} else {
+			fileName = URLEncoder.encode(fileName, "UTF-8");
+		}
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "attachment;filename=" + fileName);
+
+		HttpStatus status = HttpStatus.OK;
+
+		ResponseEntity<byte[]> responseEntity = new ResponseEntity<>(body, headers, status);
+		return responseEntity;
+	}
+
+	@RequestMapping("i18n")
+	public String testI18n(Locale locale) {
+		String username = messageSource.getMessage("i18n.username", null, locale);
+		System.out.println(username);
+		return SUCCESS;
+	}
+
+	@ResponseBody
+	@RequestMapping("testJson")
+
+	public Object testJson() {
+		Map<String, Object> map = new HashMap<>();
+		User user = new User(1, "A", "123456", 18, "a@aa.com");
+		map.put("user", user);
+		System.out.println("testJson");
+		return map;
+	}
+
 	/**
 	 * 不自动绑定对象中的roleSet 属性，另行处理
+	 *
 	 * @param dataBinder
 	 */
 	@InitBinder
-	public void initBinder(WebDataBinder dataBinder){
+	public void initBinder(WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("roleSet");
 	}
 
 	@RequestMapping("testConversionServiceConverter")
-	public String testConverter(@RequestParam("user") User user){
+	public String testConverter(@RequestParam("user") User user) {
 		System.out.println(user);
 		return SUCCESS;
 	}
 
 	@RequestMapping("testRedirect")
-	public String testRedirect(){
+	public String testRedirect() {
 		System.out.println("testRedirect");
 		return "redirect:/index.jsp";
 	}
 
 	@RequestMapping("testForward")
-	public String testForward(){
+	public String testForward() {
 		System.out.println("testForward");
 		return "forward:/index.jsp";
 	}
 
 	@RequestMapping("testView")
-	public String testView(){
+	public String testView() {
 		System.out.println("testView");
 		return "helloView";
 	}

@@ -1,3 +1,4 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <html>
 <body>
 <a href="helloworld">
@@ -96,8 +97,21 @@
 <a href="testRedirect">testRedirect</a>
 <br>
 <a href="testForward">testForward</a>
-
 <br>
 <a href="user">user</a>
+<br>
+<a href="testJson">testJson</a>
+<br>
+<a href="i18n">i18n</a>
+<br>
+<a href="testResponseEntity">testResponseEntity</a>
+<br>
+<form action="<%= application.getContextPath() %>/testFileUpload" method="post" enctype="multipart/form-data">
+    File : <input type="file" name="file">
+    <br>
+    Desc : <input type="text" name="desc">
+    <br>
+    <input type="submit" value="提交">
+</form>
 </body>
 </html>

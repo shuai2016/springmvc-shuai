@@ -26,5 +26,8 @@ session user : ${sessionScope.user}
 <fmt:message key="i18n.username"></fmt:message>
 <br>
 <fmt:message key="i18n.password"></fmt:message>
+<br>
+<a href="<%=request.getContextPath()%>/i18n?locale=zh_CN">中文</a>
+<a href="<%=request.getContextPath()%>/i18n?locale=en_US">英文</a>
 </body>
 </html>

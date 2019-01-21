@@ -539,30 +539,93 @@
           3. Hibernate Validator 是 JSR 303 的一个参考实现，除支持所有标准的校验注解外，它还支持以下的扩展注解，如：@Email
        2. 校验
           1. 使用JSR 303 验证标准
-          2. 加入 hibernate validator 验证框架
+          2. 加入 hibernate validator 验证框架的 jar 包
           3. 在 SpringMVC 配置文件中添加`<mvc:annotation-driven/>`
           4. 需要在bean 的属性上添加对应的注解
           5. 在目标方法 bean 类型的前面添加 @Valid 注解
     2. 验证出错转向到哪个页面
+       1. 使用BindingResult收集错误信息
+       2. 注意：需要验证的Bean 对象和其绑定结果对象或错误对象是成对出现的，它们之间不允许声明其它的入参
     3. 错误消息，如何显示，如何把错误消息进行国际化
 
 40. 错误消息的显示及国际化
 
+    1. 使用`<form:errors path="*"/>`显示错误
+       1. 显示所有错误：path="*"
+       2. 显示单独属性的错误：path="属性名"
+    2. 错误消息国际化
+       1. 配置国际化资源文件
+       2. 键值对的键需要满足一定的规则：校验注解.Bean名.属性名，例如：NotEmpty.user.username
+       3. 键值对的值就是错误消息
+
 41. 返回JSON
+
+    1. 添加三个jackson的jar包
+    2. 编写目标方法，使其返回JSON对应的对象或集合
+    3. 在目标方法添加`@ResponseBody`注解
 
 42. HttpMessageConverter原理
 
 43. 使用HttpMessageConverter
 
+    1. 使用`HttpMessageConverter<T>`将请求信息转化并绑定到处理方法的入参中或将响应结果转为对应类型的响应信息，Spring提供了两种途径：
+       1. 使用@RequestBody/@ResponseBody对处理方法进行标注
+       2. 使用`HttpEntity<T>`/`ResponseEntity<T>`作为处理方法的入参或返回值
+
 44. 国际化_概述
+
+    1. 关于国际化
+       1. 在页面上能够根据浏览器语言设置的情况对文本（不是内容），时间，数值进行本地化处理
+       2. 可以在 bean 中 获取国际化资源文件 Locale 对应的消息
+       3. 可以通过超链接切换 Locale，而不再依赖于浏览器的语言设置情况
+    2. 解决
+       1. 使用JSTL 的 fmt 标签
+       2. 在 bean 中注入ResourceBundleMessageSource 的实例，使其对应 getMessage 方法即可
+       3. 配置 LocaleResolver和 LocaleChangeInterceptor
 
 45. 国际化_前两个问题
 
 46. 国际化_通过超链接切换Locale
 
+    1. 配置 SessionLocaleResolver和 LocaleChangeInterceptor
+
+       ```java
+       <!--配置SessionLocaleResolver-->
+       <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"/>
+       
+       <!--配置LocaleChangeInterceptor-->
+       <mvc:interceptors>
+           <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+       </mvc:interceptors>
+       ```
+
+    2. 超链接加上请求参数locale=zh_CN
+
+       ```jsp
+       <a href="<%=request.getContextPath()%>/i18n?locale=zh_CN">中文</a>
+       <a href="<%=request.getContextPath()%>/i18n?locale=en_US">英文</a>
+       ```
+
 47. 文件上传
 
 48. 第一个自定义的拦截器
+
+    1. 自定义一个类，实现HandlerInterceptor接口
+
+    2. springmvc配置文件配置拦截器
+
+       ```xml
+       <mvc:interceptors>
+           <!--配置自定义拦截器-->
+           <bean class="xin.yangshuai.springmvc.interceptors.FirstInterceptor"/>
+       </mvc:interceptors>
+       ```
+
+    3. 拦截器的三个方法
+
+       1. preHandle：该方法在目标方法之前被调用，若返回值为true，则继续调用后续的拦截器和目标方法，若返回值为false，则不会再调用后续的拦截器和目标方法，可以考虑做权限，日志，事务等
+       2. postHandle：调用目标方法之后，但在渲染视图之前，可以对请求域中的属性或视图做出修改
+       3. afterCompletion：渲染视图之后被调用，释放资源
 
 49. 拦截器的配置
 

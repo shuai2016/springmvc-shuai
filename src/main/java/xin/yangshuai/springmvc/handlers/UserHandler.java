@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import xin.yangshuai.springmvc.entities.Address;
 import xin.yangshuai.springmvc.entities.User;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class UserHandler {
 	}
 
 	@RequestMapping(value = "user", method = RequestMethod.POST)
-	public String add(User user, BindingResult result) {
+	public String add(@Valid User user, BindingResult result) {
 		System.out.println(user);
 		if (result.getErrorCount() > 0) {
 			System.out.println("出错了");

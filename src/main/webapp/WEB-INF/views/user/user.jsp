@@ -18,6 +18,7 @@
         <tr>
             <td>username</td>
             <td><form:input path="username"/></td>
+            <td><form:errors path="username"/></td>
         </tr>
         <tr>
             <td>password</td>
@@ -30,6 +31,7 @@
         <tr>
             <td>birth</td>
             <td><form:input path="birth"/></td>
+            <td><form:errors path="birth"/></td>
         </tr>
         <tr>
             <td>salary</td>
@@ -38,6 +40,7 @@
         <tr>
             <td>email</td>
             <td><form:input path="email"/></td>
+            <td><form:errors path="email"/></td>
         </tr>
         <tr>
             <td>province</td>
@@ -58,7 +61,7 @@
 </form>
 <script>
     $(function(){
-        alert("hello jQuery");
+        //alert("hello jQuery");
     })
 </script>
 </body>
