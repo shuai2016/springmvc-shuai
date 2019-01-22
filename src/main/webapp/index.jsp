@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <html>
 <body>
+<a href="testExceptionHandlerExceptionResolver?i=2">testExceptionHandlerExceptionResolver</a>
+<br>
 <a href="helloworld">
     <h2>Hello World!</h2>
 </a>

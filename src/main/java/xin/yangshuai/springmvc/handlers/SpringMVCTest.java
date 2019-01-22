@@ -6,7 +6,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,12 +13,9 @@ import org.springframework.web.servlet.ModelAndView;
 import xin.yangshuai.springmvc.entities.User;
 import xin.yangshuai.springmvc.utils.DataUtils;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.ws.spi.http.HttpHandler;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -38,13 +34,21 @@ import java.util.Map;
 //@SessionAttributes(value = {"user"}, types = {Date.class})
 public class SpringMVCTest {
 	public static final String SUCCESS = "success";
+	public static final String ERROR = "error";
 
 	@Autowired
 	private ResourceBundleMessageSource messageSource;
 
+	@RequestMapping("testExceptionHandlerExceptionResolver")
+	public String testExceptionHandlerExceptionResolver(int i) {
+		System.out.println("testExceptionHandlerExceptionResolver");
+		System.out.println("result : " + (10 / i));
+		return SUCCESS;
+	}
+
 	@RequestMapping("testFileUpload")
-	public String testFileUpload(@RequestParam("desc") String desc, @RequestParam("file")MultipartFile file){
-		System.out.println("desc : "+desc);
+	public String testFileUpload(@RequestParam("desc") String desc, @RequestParam("file") MultipartFile file) {
+		System.out.println("desc : " + desc);
 		System.out.println(file.getOriginalFilename());
 		return SUCCESS;
 	}

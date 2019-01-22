@@ -60,6 +60,11 @@
         <bean class="xin.yangshuai.springmvc.interceptors.FirstInterceptor"/>
         <!--配置LocaleChangeInterceptor-->
         <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+        <!--配置拦截器（不）作用的路径-->
+        <mvc:interceptor>
+            <mvc:mapping path="/user"/>
+            <bean class="xin.yangshuai.springmvc.interceptors.SecondInterceptor"/>
+        </mvc:interceptor>
     </mvc:interceptors>
 
 </beans>
