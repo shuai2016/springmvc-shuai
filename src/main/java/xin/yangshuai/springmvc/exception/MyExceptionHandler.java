@@ -1,4 +1,4 @@
-package xin.yangshuai.springmvc.handlers;
+package xin.yangshuai.springmvc.exception;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -1,6 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="utf-8" %>
 <html>
 <body>
+<a href="testSimpleMappingExceptionResolver?i=2">testSimpleMappingExceptionResolver</a>
+<br>
+<a href="testResponseStatusExceptionResolver?i=2">testResponseStatusExceptionResolver</a>
+<br>
 <a href="testExceptionHandlerExceptionResolver?i=2">testExceptionHandlerExceptionResolver</a>
 <br>
 <a href="helloworld">

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import xin.yangshuai.springmvc.entities.User;
+import xin.yangshuai.springmvc.exception.UserNameNotMatchPasswordException;
 import xin.yangshuai.springmvc.utils.DataUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +39,25 @@ public class SpringMVCTest {
 
 	@Autowired
 	private ResourceBundleMessageSource messageSource;
+
+	@RequestMapping("testSimpleMappingExceptionResolver")
+	public String testSimpleMappingExceptionResolver(int i) {
+		String [] vals = new String[10];
+		System.out.println(vals[i]);
+		System.out.println("testSimpleMappingExceptionResolver");
+		return SUCCESS;
+	}
+
+	@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "测试")
+	@RequestMapping("testResponseStatusExceptionResolver")
+	public String testResponseStatusExceptionResolver(int i) {
+		System.out.println("testResponseStatusExceptionResolver");
+		if(i == 13){
+			throw new UserNameNotMatchPasswordException();
+		}
+		System.out.println("not 13");
+		return SUCCESS;
+	}
 
 	@RequestMapping("testExceptionHandlerExceptionResolver")
 	public String testExceptionHandlerExceptionResolver(int i) {
