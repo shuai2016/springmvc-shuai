@@ -20,6 +20,9 @@ import java.util.Map;
  */
 @Controller
 public class UserHandler {
+	public UserHandler() {
+		System.out.println("UserHandler");
+	}
 
 	private static User user;
 	private static Address address;

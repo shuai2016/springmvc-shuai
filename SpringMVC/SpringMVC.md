@@ -733,8 +733,47 @@
 
 57. Spring整合SpringMVC_提出问题
 
+    1. 通常情况下，类似于数据源，事务，整合其它框架都是放在 Spring 的配置文件中（而不是放在 SpringMVC 的配置文件中），实际上放入 Spring 的配置文件对应的 IOC 容器中的还有 Service 和 Dao。
+    2. 若Spring 的 IOC 容器 和 SpringMVC 的 IOC 容器扫描包有重合的部分，就会导致有的 bean 会被创建2次
+       1. 使Spring 的 IOC 容器扫描的包和 SpringMVC 的 IOC 容器扫描的包没有重合的部分
+       2. 使用exclude-filter 和 include-filter 子节点来规定只能扫描的注解
+
 58. Spring整合SpringMVC_解决方案
 
+    1. web.xml文件添加ContextLoaderListener并加载Spring的配置文件
+
+       ```xml
+       <!-- 配置启动 Spring IOC 容器的 Listener -->
+       <context-param>
+           <param-name>contextConfigLocation</param-name>
+           <param-value>classpath:beans.xml</param-value>
+       </context-param>
+       <listener>
+           <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+       </listener>
+       ```
+
+    2. SpringMVC配置文件只扫描Controller和ControllerAdvice相关注解的bean
+
+       ```xml
+       <context:component-scan base-package="xin.yangshuai.springmvc" use-default-filters="false">
+           <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+           <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+       </context:component-scan>
+       ```
+
+    3. Spring配置文件扫描其它注解的bean
+
+       ```xml
+       <context:component-scan base-package="xin.yangshuai.springmvc">
+           <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+           <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+       </context:component-scan>
+       ```
+
 59. SpringIOC容器和SpringMVCIOC容器的关系
+
+    1. SpringMVC 的 IOC 容器中的bean 可以来引用 Spring IOC 容器中的bean，反过来则不行
+    2. Spring IOC 容器中的 bean 却不能来引用 SpringMVC IOC 容器中的bean。
 
 60. SpringMVC对比Struts2

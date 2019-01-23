@@ -3,6 +3,7 @@ package xin.yangshuai.springmvc.converters;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import xin.yangshuai.springmvc.entities.User;
 
 /**
@@ -11,7 +12,7 @@ import xin.yangshuai.springmvc.entities.User;
  * @author shuai
  * @date 2019/1/18
  */
-@Component
+@Controller
 public class UserConverter implements Converter<String,User> {
 	@Override
 	public User convert(String source) {
