@@ -15,6 +15,17 @@
 <body>
 Hello World !
 <br>
+<form action="testEncoding" method="get">
+    <input type="text" name="username">
+    <input type="submit" value="提交">
+</form>
+<br>
+<form action="testEncoding" method="post">
+    <input type="text" name="username">
+    <input type="submit" value="提交">
+</form>
+<div>username : ${username}</div>
+<br>
 request time : ${requestScope.time}
 <br>
 request user : ${requestScope.user}

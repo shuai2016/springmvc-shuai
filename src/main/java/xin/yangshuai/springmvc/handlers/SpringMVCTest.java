@@ -40,6 +40,14 @@ public class SpringMVCTest {
 	@Autowired
 	private ResourceBundleMessageSource messageSource;
 
+	@RequestMapping("testEncoding")
+	public String testEncoding(Map<String,Object> map,String username){
+		System.out.println("testEncoding");
+		System.out.println("username : "+ username);
+		map.put("username",username);
+		return SUCCESS;
+	}
+
 	@RequestMapping("testSimpleMappingExceptionResolver")
 	public String testSimpleMappingExceptionResolver(int i) {
 		String [] vals = new String[10];
