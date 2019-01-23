@@ -3,10 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-    <context:component-scan base-package="xin.yangshuai.springmvc" use-default-filters="false">
-        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
-        <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
-    </context:component-scan>
+    <context:component-scan base-package="xin.yangshuai.springmvc"/>
 
     <!--配置视图解析器：如何把handle 方法返回值解析为实际的物理视图 -->
     <!--优先级较低 -->
@@ -15,70 +12,15 @@
         <property name="suffix" value=".jsp"></property>
     </bean>
 
-    <!--配置视图 BeanNameViewResolver 解析器：使用视图的名字来解析视图-->
-    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
-        <!--通过order属性来定义视图解析器的优先级， order值越小优先级越优先-->
-        <property name="order" value="100"/>
-    </bean>
-
-    <!--配置国际化资源文件-->
-    <bean id="messageSource" class=" org.springframework.context.support.ResourceBundleMessageSource">
-        <property name="basename" value="i18n"></property>
-        <!-- 支持UTF-8的中文 -->
-        <property name="cacheSeconds" value="0"/>
-        <property name="defaultEncoding" value="UTF-8"/>
-    </bean>
-
     <mvc:default-servlet-handler/>
 
-    <!--配置直接转发的页面-->
-    <!--可以直接对应转发的页面，而无需再经过 Handler 的方法-->
-    <mvc:view-controller path="/success" view-name="success"/>
-    <mvc:view-controller path="/mp3" view-name="mp3/index"/>
-
     <!--在实际开发中通常都需要配置mvc:annotation-driven 标签,否则，如果配置了view-controller标签，却没配置annotation-driven标签，会导致普通的映射不起作用-->
-    <mvc:annotation-driven conversion-service="conversionService"/>
-
-    <!--配置ConversionService-->
-    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
-        <property name="converters">
-            <set>
-                <ref bean="userConverter"/>
-            </set>
-        </property>
-    </bean>
+    <mvc:annotation-driven/>
 
     <!--配置MultipartResolver-->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
         <property name="defaultEncoding" value="UTF-8"/>
         <property name="maxUploadSize" value="1024000"/>
     </bean>
-
-    <!--配置SessionLocaleResolver-->
-    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"/>
-
-
-    <mvc:interceptors>
-        <!--配置自定义拦截器-->
-        <bean class="xin.yangshuai.springmvc.interceptors.FirstInterceptor"/>
-        <!--配置LocaleChangeInterceptor-->
-        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
-        <!--配置拦截器（不）作用的路径-->
-        <mvc:interceptor>
-            <mvc:mapping path="/user"/>
-            <bean class="xin.yangshuai.springmvc.interceptors.SecondInterceptor"/>
-        </mvc:interceptor>
-    </mvc:interceptors>
-
-    <!--配置使用 SimpleMappingExceptionResolver 来映射异常-->
-    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
-        <property name="exceptionAttribute" value="exception"/>
-        <property name="exceptionMappings">
-            <props>
-                <prop key="java.lang.ArrayIndexOutOfBoundsException">error</prop>
-            </props>
-        </property>
-    </bean>
-
 
 </beans>
