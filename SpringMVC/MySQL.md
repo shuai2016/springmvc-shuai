@@ -89,7 +89,162 @@
       1. 默认转义：`LIKE '_\_%'`
       2. 指定转义字符：`LIKE '_$_%' ESCAPE '$'`
    4. `like '%%'`：无法查出为null的数据
+   5. like可以判断数值型：`LIKE '1__'`
 4. `is null`：=或`<>`不能用于判断null值，`IS NULL`或`IS NOT NULL`用于判断null值
 5. 安全等于：`<=>`，表示等于
    1. 可以判断null：`commission_pct <=> NULL`
    2. 可以判断普通数值：`salary <=> 12000`
+
+## 排序查询
+
+1. `order by`子句中可以支持单个字段、多个字段、表达式、函数、别名
+2. `order by`子句一般是放在查询语句的最后面，limit子句除外
+
+## 常见函数
+
+```sql
+SELECT 函数名(实参列表) 【from 表】;
+```
+
+### 单行函数
+
+#### 字符函数
+
+1. length：`SELECT LENGTH('张三丰hahaha');`获取参数值的字节个数，一个中文占多个字节（utf8字符集一个中文占3个字节）
+2. concat：拼接字符串
+3. upper、lower
+4. substr、substring 
+   1. 索引从1开始
+   2. 截取从指定索引处后面所有字符：`SELECT SUBSTR('李莫愁爱上了陆展元',7) out_put;`
+   3. 截取从指定索引处指定字符长度的字符：`SELECT SUBSTR('李莫愁爱上了陆展元',1,3) out_put;`
+5. instr：`SELECT INSTR('杨不悔爱上了殷六侠','殷六侠') out_put;`，返回字串第一次出现的索引，如果找不到返回0
+6. trim：去前后空格
+   1. 默认去前后空格：`SELECT TRIM( '  张翠山  ' ) out_put;`
+   2. 去前后指定字符：`SELECT TRIM( 'a' FROM 'aaaaa张aaaaa翠山aaaaa' ) out_put;`，中间不会去掉
+7. lpad：`SELECT LPAD('殷素素',10,'*') out_put;`，用指定的字符左填充原字符使字符串至指定长度，若原字符串已经超出指定长度则从左截取指定长度返回。
+8. rpad：若原字符串已经超出指定长度依然从左截取指定长度返回。
+9. replace：`SELECT REPLACE('张无忌爱上了周芷若周芷若周芷若','周芷若','赵敏') out_put;`，替换全部指定字符
+
+#### 数学函数
+
+1. round：四舍五入
+   1. `SELECT ROUND( - 1.5 )`：返回-2
+   2. `SELECT ROUND( - 1.55,1 )`：返回-1.6，小数点后保留1位
+2. ceil：向上取整，返回>=该参数的最小整数
+   1. `SELECT ceil(-1.2)`：返回-1
+3. floor：向下取整，返回<=该参数的最大整数
+4. truncate：截断
+   1. `SELECT TRUNCATE(1.555,2 )`，返回1.55，小数点后保留2位
+5. mod：取余，`MOD(a,b)`：表示`a-a/b*b`，所以符号和被除数相同
+   1. `SELECT MOD(-10,-3)`：返回-1
+   2. `SELECT MOD(-10,3)`：返回-1
+
+#### 日期函数
+
+1. now：返回当前系统日期+时间
+   1. `SELECT NOW();`：返回 2019-01-25 11:27:29
+2. curdate：返回当前系统日期，不包含时间
+   1. `SELECT CURDATE();`：返回 2019-01-25
+3. curtime：返回当前时间，不包含日期
+   1. `SELECT CURTIME();`：返回 11:34:17
+4. 获取时间的指定部分，年、月、日、时、分、秒
+   1. `SELECT MONTH(NOW());`：返回 1
+   2. `SELECT MONTHNAME(NOW());`：返回 January
+5. str_to_date：字符转换为日期
+   1. `SELECT STR_TO_DATE('2019/1/25 8-12-20','%Y/%c/%d %H-%i-%s');`：返回 2019-01-25 08:12:20
+   2. 格式符
+      1. `%Y`：四位年份
+      2. `%y`：2位年份
+      3. `%m`：月份（01,02，……，11,12）
+      4. `%c`：月份（1,2，……，11,12）
+      5. `%d`：日（01,02）
+      6. `%H`：小时（24小时制）
+      7. `%h`：小时（12小时制）
+      8. `%i`：分钟（00,01，……，59）
+      9. `%s`：秒（00,01，……，59）
+6. date_format：将日期转换成字符
+   1. `SELECT DATE_FORMAT(NOW(),'%Y/%c/%d %H-%i-%s');`：返回 2019/1/25 11-53-26
+7. datediff：查询相差天数
+   1. `SELECT DATEDIFF(NOW(),'1994-01-01');`，第一个参数为较大日期（较近日期）
+
+#### 其它函数
+
+1. 查看版本号：`SELECT VERSION()`
+2. 查看当前数据库：`SELECT DATABASE()`
+3. 查看当前的用户：`SELECT USER()`
+
+#### 流程控制函数
+
+1. if函数：`SELECT IF(10<5,'大','小');`
+
+2. case：
+
+   1. 类似switch...case
+
+      ```sql
+      /*
+      case 要判断的字段或表达式
+      when 常量1 then 要显示的值1或语句1;（值不加;）
+      when 常量2 then 要显示的值2或语句2;
+      ...
+      else 要显示的值n或语句n;
+      end
+      */
+      SELECT
+      	salary 原始工资,
+      	department_id,
+      CASE
+      	department_id 
+      	WHEN 30 THEN salary * 1.1 
+      	WHEN 40 THEN salary * 1.2 
+      	WHEN 50 THEN salary * 1.3 ELSE salary 
+      	END AS 新工资 
+      FROM
+      	employees;
+      ```
+
+   2. 类似多重if
+
+      ```sql
+      /*
+      case
+      when 条件1 then 要显示的值1或语句1
+      when 条件2 then 要显示的值2或语句2
+      ...
+      else 要显示的值n或语句n
+      end
+      */
+      SELECT
+      	salary,
+      CASE
+      	WHEN salary > 20000 THEN 'A' 
+      	WHEN salary > 15000 THEN 'B' 
+      	WHEN salary > 10000 THEN 'C'
+      	ELSE 'D' 
+      	END AS 工资级别 
+      FROM
+      	employees;
+      ```
+
+### 分组函数
+
+1. sum、avg一般用于处理数值型，max、min、count可以处理任何类型
+2. 以上分组函数都忽略null值
+3. 可以和distinct搭配实现去重后计算
+4. count函数的效率问题，一般使用count(*)用作统计行数
+   1. MYISAM存储引擎下，count(*)的效率高
+   2. INNODB存储引擎下，count(*)和count(1)的效率差不多，比count(字段)效率要高一些
+5. 和分组函数一同查询的字段要求是group by后的字段
+
+## 分组查询
+
+1. 分组查询中的筛选条件分为两类
+
+   |            | 数据源         | 位置                | 关键字 |
+   | ---------- | -------------- | ------------------- | ------ |
+   | 分组前筛选 | 原始表         | group by 子句的前面 | where  |
+   | 分组后筛选 | 分组后的结果集 | group by 子句的后面 | having |
+
+   1. 分组函数做条件肯定是放在having字句中
+   2. 能用分组前筛选的，就优先考虑使用分组前筛选
+
