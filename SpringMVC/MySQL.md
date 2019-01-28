@@ -138,6 +138,7 @@ SELECT 函数名(实参列表) 【from 表】;
 5. mod：取余，`MOD(a,b)`：表示`a-a/b*b`，所以符号和被除数相同
    1. `SELECT MOD(-10,-3)`：返回-1
    2. `SELECT MOD(-10,3)`：返回-1
+6. rand：获取随机数，返回0-1之间的小数（取不到1），`SELECT RAND()`
 
 #### 日期函数
 
@@ -172,6 +173,8 @@ SELECT 函数名(实参列表) 【from 表】;
 1. 查看版本号：`SELECT VERSION()`
 2. 查看当前数据库：`SELECT DATABASE()`
 3. 查看当前的用户：`SELECT USER()`
+4. 返回字符串的密码形式：`SELECT PASSWORD('字符');`
+5. 返回字符串的md5加密形式：`SELECT MD5( '字符' );`
 
 #### 流程控制函数
 
@@ -234,7 +237,7 @@ SELECT 函数名(实参列表) 【from 表】;
 4. count函数的效率问题，一般使用count(*)用作统计行数
    1. MYISAM存储引擎下，count(*)的效率高
    2. INNODB存储引擎下，count(*)和count(1)的效率差不多，比count(字段)效率要高一些
-5. 和分组函数一同查询的字段要求是group by后的字段
+5. 和分组函数一同查询的字段要求是group by后出现的字段
 
 ## 分组查询
 
@@ -248,3 +251,83 @@ SELECT 函数名(实参列表) 【from 表】;
    1. 分组函数做条件肯定是放在having字句中
    2. 能用分组前筛选的，就优先考虑使用分组前筛选
 
+2. 按表达式或函数分组
+
+   ```sql
+   SELECT
+   	count( * ) c,
+   	length( last_name ) len_name 
+   FROM
+   	employees 
+   GROUP BY
+   	len_name 
+   HAVING
+   	c > 5;
+   ```
+
+   1. mysql支持group by子句 和 having子句 使用 select子句 的别名
+
+## 连接查询（多表查询）
+
+### 笛卡尔乘积现象
+
+### 分类
+
+#### 按年代分类
+
+1. sql92标准：mysql中仅仅支持内连接
+
+   1. 等值连接
+
+      1. 多表等值连接的结果为多表的交集部分
+      2. n表连接，至少需要n-1个连接条件
+      3. 多表的顺序没有要求
+      4. 一般需要为表起别名
+      5. 可以搭配前面介绍的所有子句使用，比如排序，分组，筛选
+
+   2. 非等值连接
+
+      ```sql
+      SELECT
+      	salary,
+      	grade_level 
+      FROM
+      	employees e,
+      	job_grades g 
+      WHERE
+      	salary BETWEEN g.lowest_sal 
+      	AND g.highest_sal;
+      ```
+
+   3. 自连接
+
+      ```sql
+      SELECT
+      	e.employee_id,
+      	e.last_name,
+      	m.employee_id,
+      	m.last_name 
+      FROM
+      	employees e,
+      	employees m 
+      WHERE
+      	e.manager_id = m.employee_id
+      ```
+
+2. sql99标准：mysql支持内连接+外连接（左外和右外）+交叉连接
+
+#### 按功能分类
+
+1. 内连接
+   1. 等值连接
+   2. 非等值连接
+   3. 自连接
+2. 外连接
+   1. 左外连接
+   2. 右外连接（mysql不支持）
+   3. 全外连接
+3. 交叉连接
+
+### 注意
+
+1. 如果为表起了别名，则查询的字段就不能使用原来的表名去限定
