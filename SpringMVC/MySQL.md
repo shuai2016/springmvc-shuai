@@ -275,59 +275,114 @@ SELECT 函数名(实参列表) 【from 表】;
 
 #### 按年代分类
 
-1. sql92标准：mysql中仅仅支持内连接
+##### sql92标准：mysql中仅仅支持内连接
 
-   1. 等值连接
+1. 等值连接
 
-      1. 多表等值连接的结果为多表的交集部分
-      2. n表连接，至少需要n-1个连接条件
-      3. 多表的顺序没有要求
-      4. 一般需要为表起别名
-      5. 可以搭配前面介绍的所有子句使用，比如排序，分组，筛选
+   1. 多表等值连接的结果为多表的交集部分
+   2. n表连接，至少需要n-1个连接条件
+   3. 多表的顺序没有要求
+   4. 一般需要为表起别名
+   5. 可以搭配前面介绍的所有子句使用，比如排序，分组，筛选
 
-   2. 非等值连接
+2. 非等值连接
+
+   ```sql
+   SELECT
+   	salary,
+   	grade_level 
+   FROM
+   	employees e,
+   	job_grades g 
+   WHERE
+   	salary BETWEEN g.lowest_sal 
+   	AND g.highest_sal;
+   ```
+
+3. 自连接
+
+   ```sql
+   SELECT
+   	e.employee_id,
+   	e.last_name,
+   	m.employee_id,
+   	m.last_name 
+   FROM
+   	employees e,
+   	employees m 
+   WHERE
+   	e.manager_id = m.employee_id
+   ```
+
+##### sql99标准：mysql支持内连接+外连接（左外和右外）+交叉连接
+
+```sql
+select 查询列表
+from 表1 别名 【连接类型】
+join 表2 别名
+on 连接条件
+【where 筛选条件】
+【group by 分组】
+【having 筛选条件】
+【order by 排序列表】
+```
+
+1. 内连接：inner
+
+   1. 等值连接：【inner】
+   2. 非等值连接：【inner】
+   3. 自连接：【inner】
+
+2. 外连接：外连接的查询结果为主表中的所有记录，如果从表中有和它匹配的，则显示匹配的值，如果从表中没有和它匹配的，则显示null，外连接查询结果=内连接结果+主表中有而从表没有的记录
+
+   1. 左外连接：left 【outer】：left join左边的是主表
 
       ```sql
       SELECT
-      	salary,
-      	grade_level 
+      	b.`name`
       FROM
-      	employees e,
-      	job_grades g 
+      	beauty b
+      	LEFT OUTER JOIN boys bo ON b.boyfriend_id = bo.id 
       WHERE
-      	salary BETWEEN g.lowest_sal 
-      	AND g.highest_sal;
+      	bo.id IS NULL;
       ```
 
-   3. 自连接
+   2. 右外连接：right 【outer】：right join右边的是主表
 
-      ```sql
-      SELECT
-      	e.employee_id,
-      	e.last_name,
-      	m.employee_id,
-      	m.last_name 
-      FROM
-      	employees e,
-      	employees m 
-      WHERE
-      	e.manager_id = m.employee_id
-      ```
+   3. 全外连接：full 【outer】：（mysql不支持）
 
-2. sql99标准：mysql支持内连接+外连接（左外和右外）+交叉连接
+3. 交叉连接：cross（笛卡尔乘积）
+
+   ```sql
+   SELECT
+   	b.*,
+   	bo.* 
+   FROM
+   	beauty b
+   	CROSS JOIN boys bo;
+   ```
 
 #### 按功能分类
 
-1. 内连接
-   1. 等值连接
-   2. 非等值连接
-   3. 自连接
-2. 外连接
-   1. 左外连接
-   2. 右外连接（mysql不支持）
-   3. 全外连接
-3. 交叉连接
+##### 内连接
+
+1. 等值连接
+2. 非等值连接
+3. 自连接
+
+##### 外连接
+
+1. 左外连接
+2. 右外连接（mysql不支持）
+3. 全外连接
+
+##### 交叉连接（笛卡尔乘积）
 
 ### 注意
 
 1. 如果为表起了别名，则查询的字段就不能使用原来的表名去限定
+
+## 子查询
+
+出现在其它语句中的select语句，称为子查询或内查询，外部的查询语句，称为主查询或外查询
+
