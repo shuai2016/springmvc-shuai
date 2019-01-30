@@ -384,5 +384,136 @@ on 连接条件
 
 ## 子查询
 
-出现在其它语句中的select语句，称为子查询或内查询，外部的查询语句，称为主查询或外查询
+出现在其它语句中的select语句，称为子查询或内查询，外部的查询语句，称为主查询或外查询。
+
+### 分类
+
+#### 按子查询出现的位置
+
+1. select后面
+
+   1. 仅仅支持标量子查询
+
+      ```sql
+      SELECT
+      	d.*,
+      	( SELECT COUNT( * ) FROM employees e WHERE e.department_id = d.department_id ) 个数 
+      FROM
+      	departments d;
+      ```
+
+2. from后面
+
+   1. 支持表子查询
+
+      ```sql
+      SELECT
+      	ag_dep.*,
+      	g.grade_level 
+      FROM
+      	( SELECT AVG( salary ) ag, department_id FROM employees GROUP BY department_id ) ag_dep
+      	INNER JOIN job_grades g ON ag_dep.ag BETWEEN lowest_sal 
+      	AND highest_sal
+      ```
+
+      1. 将子查询结果充当一张表，要求必须起别名
+
+3. where或having后面*
+
+   1. 标量子查询*
+
+      ```sql
+      SELECT
+      	MIN( salary ),
+      	department_id 
+      FROM
+      	employees 
+      GROUP BY
+      	department_id 
+      HAVING
+      	MIN( salary ) > ( SELECT MIN( salary ) FROM employees WHERE department_id = 50 );
+      ```
+
+   2. 列子查询（多行子查询）*
+
+      ```sql
+      SELECT
+      	last_name,
+      	employee_id,
+      	job_id,
+      	salary 
+      FROM
+      	employees 
+      WHERE
+      	salary < ALL ( SELECT DISTINCT salary FROM employees WHERE job_id = 'IT_PROG' );
+      ```
+
+   3. 行子查询（一行多列）
+
+      ```sql
+      SELECT
+      	* 
+      FROM
+      	employees 
+      WHERE
+      	( employee_id, salary ) = ( SELECT MIN( employee_id ), MAX( salary ) FROM employees );
+      ```
+
+4. exists后面（相关子查询）
+
+   1. 表子查询
+
+      ```sql
+      SELECT
+      	department_name 
+      FROM
+      	departments d 
+      WHERE
+      	EXISTS ( SELECT * FROM employees e WHERE d.department_id = e.department_id );
+      ```
+
+#### 按结果集的行列数不同
+
+1. 标量子查询（结果集只有一行一列）
+2. 列子查询（结果集只有一列多行）
+3. 行子查询（结果集有一行多列）
+4. 表子查询（结果集一般为多行多列）
+
+### 特点
+
+1. 子查询放在小括号内
+2. 子查询一般放在条件的右边
+3. 标量子查询，一般搭配着单行操作符使用：<、>、=、<=、>=、<>
+4. 列子查询，一般搭配着多行操作符使用：IN/NOT IN、ANY/SOME、ALL
+5. 子查询的执行优先于主查询执行，主查询的条件用到了子查询的结果
+
+## 分页查询
+
+```sql
+select 查询列表
+from 表
+【join type join 表2
+on 连接条件
+where 筛选条件
+group by 分组字段
+having 分组后的筛选
+order by 排序的字段】
+limit 【offset,】size;
+```
+
+1. offset：要显示条目的起始索引（起始索引从0开始）
+2. size：要显示的条目个数
+
+### 特点
+
+1. limit语句放在查询语句的最后
+
+2. 公式
+
+   ```sql
+   要显示的页数 page，每页的条目数 size，
+   select 查询列表
+   from 表
+   limit (page-1)*size,size;
+   ```
 
