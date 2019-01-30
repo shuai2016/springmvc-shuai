@@ -335,7 +335,7 @@ on 连接条件
 
 2. 外连接：外连接的查询结果为主表中的所有记录，如果从表中有和它匹配的，则显示匹配的值，如果从表中没有和它匹配的，则显示null，外连接查询结果=内连接结果+主表中有而从表没有的记录
 
-   1. 左外连接：left 【outer】：left join左边的是主表
+   1. 左外连接：left 【outer】：left join 左边的是主表
 
       ```sql
       SELECT
@@ -347,7 +347,7 @@ on 连接条件
       	bo.id IS NULL;
       ```
 
-   2. 右外连接：right 【outer】：right join右边的是主表
+   2. 右外连接：right 【outer】：right join 右边的是主表
 
    3. 全外连接：full 【outer】：（mysql不支持）
 
@@ -384,7 +384,7 @@ on 连接条件
 
 ## 子查询
 
-出现在其它语句中的select语句，称为子查询或内查询，外部的查询语句，称为主查询或外查询。
+出现在其它语句内部的select语句称为子查询或内查询，外面的语句可以是insert、update、delete、select等，一般select作为外面语句较多，外面如果为select语句，则此语句称为主查询或外查询。
 
 ### 分类
 
@@ -501,7 +501,7 @@ order by 排序的字段】
 limit 【offset,】size;
 ```
 
-1. offset：要显示条目的起始索引（起始索引从0开始）
+1. offset：要显示条目的起始索引（起始索引从0开始，默认从0开始）
 2. size：要显示的条目个数
 
 ### 特点
