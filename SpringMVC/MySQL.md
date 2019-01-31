@@ -517,3 +517,83 @@ limit 【offset,】size;
    limit (page-1)*size,size;
    ```
 
+## 联合查询（union）
+
+```sql
+SELECT * FROM employees WHERE email LIKE '%a%'
+UNION
+SELECT * FROM employees WHERE department_id > 90;
+```
+
+1. 将多条查询语句的结果合并成一个结果
+
+### 特点
+
+1. 要求多条查询语句的查询列数是一致的
+2. 要求多条查询语句的查询的每一列的类型和顺序最好一致
+3. union关键字默认去重，如果使用union all 可以包含重复项
+
+# 数据操作语言DML
+
+## 插入语句
+
+### 方式一：经典插入
+
+```sql
+insert into 表名(列1,...) values(值1,...),(值1,...);
+```
+
+1. 插入的值的类型要与列的类型一致或兼容
+2. 列数和值的个数必须一致
+3. 可以省略列名，默认所有列，而且列的顺序和表中的列的顺序一致
+
+### 方式二
+
+```sql
+insert into 表名
+set 列名=值,列名=值,...
+```
+
+### 两种插入方式对比
+
+1. 方式一支持插入多行，方式二不支持
+2. 方式一支持子查询，方式二不支持
+
+## 修改语句
+
+### 修改单表的记录
+
+```sql
+update 表名
+set 列=新值,列=新值,...
+where 筛选条件;
+```
+
+### 修改多表的记录
+
+```sql
+sql92语法
+update 表1 别名,表2 别名
+set 列=值,...
+where 连接条件
+and 筛选条件;
+
+sql99语法
+update 表1 别名
+inner|left|right join 表2 别名
+on 连接条件
+set 列=值,...
+where 筛选条件;
+```
+
+
+
+
+
+
+
+
+
+
+
+### 
