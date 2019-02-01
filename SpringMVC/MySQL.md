@@ -586,7 +586,39 @@ set 列=值,...
 where 筛选条件;
 ```
 
+## 删除语句
 
+### 方式一：delete
+
+#### 单表的删除
+
+```sql
+delete from 表名 where 筛选条件
+```
+
+#### 多表的删除
+
+```sql
+sql92语法
+delete 表1的别名,表2的别名（删除哪个表数据写哪个表）
+from 表1 别名,表2 别名
+where 连接条件
+and 筛选条件;
+
+sql99语法
+delete 表1的别名,表2的别名
+from 表1 别名
+inner|left|right join 表2 别名 on 连接条件
+where 筛选条件;
+```
+
+
+
+### 方式二：truncate
+
+```sql
+truncate table 表名;
+```
 
 
 
