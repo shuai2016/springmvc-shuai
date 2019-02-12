@@ -559,6 +559,14 @@ set 列名=值,列名=值,...
 1. 方式一支持插入多行，方式二不支持
 2. 方式一支持子查询，方式二不支持
 
+### 其它插入方式
+
+```sql
+INSERT INTO my_employees
+SELECT 1,'Patel','Ralph','Rpatel',985 UNION 
+SELECT 2,'Dancs','Betty','Bdancs',860;
+```
+
 ## 修改语句
 
 ### 修改单表的记录
@@ -612,20 +620,223 @@ inner|left|right join 表2 别名 on 连接条件
 where 筛选条件;
 ```
 
-
-
 ### 方式二：truncate
 
 ```sql
 truncate table 表名;
 ```
 
+### 两种删除方式的区别
 
+1. delete 可以加 where 条件， truncate不能加
+2. truncate删除，效率较高
+3. 假如要删除的表中有自增长列，如果用delete删除后，再插入数据，自增长列的值从断点开始，而truncate删除后，在插入数据，自增长列的值从1开始
+4. truncate删除没有返回值，delete删除有返回值
+5. truncate删除不能回滚，delete删除可以回滚
 
+# 数据定义语言DDL
 
+库和表的管理创建（create）、修改（alter）、删除（drop）
 
+## 库的管理
 
+### 库的创建
 
+```sql
+CREATE DATABASE [if not exists] 库名;
+```
 
+### 库的修改
 
-### 
+#### 库名的修改（废弃）
+
+```sql
+RENAME DATABASE bookes TO 新库名;
+```
+
+#### 更改库的字符集
+
+```sql
+ALTER DATABASE books CHARACTER SET gbk;
+```
+
+### 库的删除
+
+```sql
+DROP DATABASE [IF EXISTS] books;
+```
+
+## 表的管理
+
+### 表的创建
+
+```sql
+create table [IF NOT EXISTS] 表名(
+	列名 列的类型[(长度) 约束],
+	列名 列的类型[(长度) 约束],
+	列名 列的类型[(长度) 约束],
+	...
+	列名 列的类型[(长度) 约束]
+)
+```
+
+### 表的修改
+
+```sql
+alter table 表名 add|drop|modify|change column 列名 [列类型 约束]
+```
+
+#### 修改列名
+
+```sql
+ALTER TABLE book CHANGE COLUMN publishdate(旧名) pubDate(新名) DATETIME(类型);
+```
+
+#### 修改列的类型或约束
+
+```sql
+ALTER TABLE book MODIFY COLUMN pubdate TIMESTAMP;
+```
+
+#### 添加新列
+
+```sql
+ALTER TABLE author ADD COLUMN annual DOUBLE;
+```
+
+#### 删除列
+
+```sql
+ALTER TABLE author DROP COLUMN annual;
+```
+
+#### 修改表名
+
+```sql
+ALTER TABLE author RENAME TO book_author;
+```
+
+### 表的删除
+
+```sql
+DROP TABLE [IF EXISTS] book_author;
+```
+
+### 表的复制
+
+#### 仅复制表结构
+
+```sql
+CREATE TABLE copy(新表) LIKE author(已经存在的表);
+```
+
+#### 复制表的结构及数据
+
+```sql
+CREATE TABLE copy2 SELECT * FROM author;
+```
+
+#### 仅复制某些字段
+
+```sql
+CREATE TABLE copy4
+SELECT id,au_name
+FROM author
+WHERE 0;
+```
+
+# 常见的数据类型
+
+## 数值型
+
+### 整型
+
+tinyint（1个字节）、smallint（2个字节）、mediumint（3个字节）、int（integer，4个字节）、bigint（8个字节）
+
+#### 设置无符号和有符号
+
+```sql
+CREATE TABLE tab_int(
+	t1 INT,
+    t2 INT UNSIGNED
+)
+```
+
+#### 特点
+
+1. 如果不设置无符号还是有符号，默认是有符号，如果想设置无符号，需要添加unsigned关键字
+2. 如果插入的数值超出了整型的范围，会报out of range异常，并且插入临界值
+3. 如果不设置长度，会有默认的长度，长度代表了显示的最大宽度，如果不够会用0在左边填充，但必须搭配zerofill使用，如果使用zerofill，则变为无符号
+
+### 小数
+
+#### 浮点数
+
+float(M,D)
+
+double(M,D)
+
+#### 定点数
+
+dec(M,D)
+
+decimal(M,D)
+
+#### 特点
+
+1. M表示整数部位+小数部位，D表示小数部位，如果超过范围，则插入临界值
+2. M和D都可以省略，如果是decimal，则M默认为10，D默认为0，如果是float和double，则会根据插入的数值的精度来决定精度
+3. 定点型的精确度较高，如果要求插入数值的精度较高如货币运算则考虑使用
+
+## 字符型
+
+### 较短的文本
+
+1. char、varchar
+
+   | 类型    | 写法       | M的意思                                             | 特点           | 空间的消耗 | 效率 |
+   | ------- | ---------- | --------------------------------------------------- | -------------- | ---------- | ---- |
+   | char    | char(M)    | 最大的字符数（一个汉字一个字符，可以省略，默认为1） | 固定长度的字符 | 比较耗费   | 高   |
+   | varchar | varchar(M) | 最大的字符数（一个汉字一个字符）                    | 可变长度的字符 | 比较节省   | 低   |
+
+2. binary和varbinary类型类似与char和varchar，不同的是它们包含二进制字符串而不包含非二进制字符串。
+
+3. 枚举enum（不区分大小写）
+
+   ```sql
+   CREATE TABLE tab_char(
+       c1 ENUM('a','b','c')
+   )
+   ```
+
+4. 集合set（不区分大小写）
+
+   ```sql
+   CREATE TABLE tab_set(
+       s1 SET('a','b','c','d')
+   );
+   INSERT INTO tab_set VALUES('a');
+   INSERT INTO tab_set VALUES('B');
+   INSERT INTO tab_set VALUES('a,b');
+   ```
+
+### 较长的文本
+
+text、blob（较长的二进制数据）
+
+## 日期型
+
+| 类型      | 字节 | 范围      | 时区影响 |
+| --------- | ---- | --------- | -------- |
+| datetime  | 8    | 1000-9999 | 不受     |
+| timestamp | 4    | 1970-2038 | 受       |
+
+1. date：只保存日期
+2. time：只保存时间
+3. year：只保存年
+4. datetime：保存日期+时间
+5. timestamp：保存日期+时间
+
+## 使用原则
+
+1. 所选则的类型越简单越好，能保存数值的类型越小越好
