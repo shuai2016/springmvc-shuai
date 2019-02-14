@@ -601,7 +601,7 @@ where 筛选条件;
 #### 单表的删除
 
 ```sql
-delete from 表名 where 筛选条件
+delete from 表名 where 筛选条件 limit 条目数
 ```
 
 #### 多表的删除
@@ -643,7 +643,7 @@ truncate table 表名;
 ### 库的创建
 
 ```sql
-CREATE DATABASE [if not exists] 库名;
+CREATE DATABASE [if not exists] 库名 [character set 字符集];
 ```
 
 ### 库的修改
