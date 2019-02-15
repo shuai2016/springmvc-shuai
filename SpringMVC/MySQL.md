@@ -695,13 +695,13 @@ ALTER TABLE book CHANGE COLUMN publishdate(旧名) pubDate(新名) DATETIME(类�
 #### 修改列的类型或约束
 
 ```sql
-ALTER TABLE book MODIFY COLUMN pubdate TIMESTAMP;
+ALTER TABLE book MODIFY COLUMN pubdate TIMESTAMP [新约束];
 ```
 
 #### 添加新列
 
 ```sql
-ALTER TABLE author ADD COLUMN annual DOUBLE;
+ALTER TABLE author ADD COLUMN annual DOUBLE [first|after 字段名];
 ```
 
 #### 删除列
@@ -713,7 +713,7 @@ ALTER TABLE author DROP COLUMN annual;
 #### 修改表名
 
 ```sql
-ALTER TABLE author RENAME TO book_author;
+ALTER TABLE author RENAME [TO] book_author;
 ```
 
 ### 表的删除
@@ -745,15 +745,15 @@ FROM author
 WHERE 0;
 ```
 
-# 常见的数据类型
+## 常见的数据类型
 
-## 数值型
+### 数值型
 
-### 整型
+#### 整型
 
 tinyint（1个字节）、smallint（2个字节）、mediumint（3个字节）、int（integer，4个字节）、bigint（8个字节）
 
-#### 设置无符号和有符号
+##### 设置无符号和有符号
 
 ```sql
 CREATE TABLE tab_int(
@@ -762,42 +762,42 @@ CREATE TABLE tab_int(
 )
 ```
 
-#### 特点
+##### 特点
 
 1. 如果不设置无符号还是有符号，默认是有符号，如果想设置无符号，需要添加unsigned关键字
 2. 如果插入的数值超出了整型的范围，会报out of range异常，并且插入临界值
 3. 如果不设置长度，会有默认的长度，长度代表了显示的最大宽度，如果不够会用0在左边填充，但必须搭配zerofill使用，如果使用zerofill，则变为无符号
 
-### 小数
+#### 小数
 
-#### 浮点数
+##### 浮点数
 
-float(M,D)
+float(M,D) ，4个字节
 
-double(M,D)
+double(M,D)，8个字节
 
-#### 定点数
+##### 定点数
 
 dec(M,D)
 
 decimal(M,D)
 
-#### 特点
+##### 特点
 
 1. M表示整数部位+小数部位，D表示小数部位，如果超过范围，则插入临界值
 2. M和D都可以省略，如果是decimal，则M默认为10，D默认为0，如果是float和double，则会根据插入的数值的精度来决定精度
 3. 定点型的精确度较高，如果要求插入数值的精度较高如货币运算则考虑使用
 
-## 字符型
+### 字符型
 
-### 较短的文本
+#### 较短的文本
 
 1. char、varchar
 
    | 类型    | 写法       | M的意思                                             | 特点           | 空间的消耗 | 效率 |
    | ------- | ---------- | --------------------------------------------------- | -------------- | ---------- | ---- |
-   | char    | char(M)    | 最大的字符数（一个汉字一个字符，可以省略，默认为1） | 固定长度的字符 | 比较耗费   | 高   |
-   | varchar | varchar(M) | 最大的字符数（一个汉字一个字符）                    | 可变长度的字符 | 比较节省   | 低   |
+   | char    | char(M)    | 最大的字符数（一个汉字一个字符），可以省略，默认为1 | 固定长度的字符 | 比较耗费   | 高   |
+   | varchar | varchar(M) | 最大的字符数（一个汉字一个字符），不可用省略        | 可变长度的字符 | 比较节省   | 低   |
 
 2. binary和varbinary类型类似与char和varchar，不同的是它们包含二进制字符串而不包含非二进制字符串。
 
@@ -820,11 +820,11 @@ decimal(M,D)
    INSERT INTO tab_set VALUES('a,b');
    ```
 
-### 较长的文本
+#### 较长的文本
 
 text、blob（较长的二进制数据）
 
-## 日期型
+### 日期型
 
 | 类型      | 字节 | 范围      | 时区影响 |
 | --------- | ---- | --------- | -------- |
@@ -837,6 +837,44 @@ text、blob（较长的二进制数据）
 4. datetime：保存日期+时间
 5. timestamp：保存日期+时间
 
-## 使用原则
+### 使用原则
 
 1. 所选则的类型越简单越好，能保存数值的类型越小越好
+
+## 常见约束
+
+一种限制，用于限制表中的数据，为了保证表中的数据的准确和可靠性
+
+### 分类：六大约束
+
+1. NOT NULL：非空，用于保证该字段的值不能为空
+2. DEFAULT：默认，用于保证该字段有默认值
+3. PRIMARY KEY：主键，用于保证该字段的值具有唯一性，并且非空
+4. UNIQUE：唯一，用于保证该字段的值具有唯一性，可以为空
+5. CHECK：检查约束【mysql中不支持】
+6. FOREIGN KEY：外键，用于限制两个表的关系，用于保证该字段的值必须来自于主表的关联列的值，在从表添加外键约束，用于引用主表中某列的值
+
+添加约束的时机：
+
+创建表时
+
+修改表时
+
+约束的添加分类
+
+列级约束
+
+六大约束语法上都支持，但外键约束没有效果
+
+表级约束
+
+除了非空、默认，其它的都支持
+
+```sql
+CREATE TABLE 表名(
+    字段名 字段类型 列级约束,
+    字段名 字段类型,
+    表级约束
+)
+```
+
