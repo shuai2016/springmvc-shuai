@@ -854,21 +854,12 @@ text、blob（较长的二进制数据）
 5. CHECK：检查约束【mysql中不支持】
 6. FOREIGN KEY：外键，用于限制两个表的关系，用于保证该字段的值必须来自于主表的关联列的值，在从表添加外键约束，用于引用主表中某列的值
 
-添加约束的时机：
+### 添加约束的时机：
 
-创建表时
+1. 创建表时
+2. 修改表时
 
-修改表时
-
-约束的添加分类
-
-列级约束
-
-六大约束语法上都支持，但外键约束没有效果
-
-表级约束
-
-除了非空、默认，其它的都支持
+### 约束的添加分类
 
 ```sql
 CREATE TABLE 表名(
@@ -877,4 +868,57 @@ CREATE TABLE 表名(
     表级约束
 )
 ```
+
+1. 列级约束：六大约束语法上都支持，但外键约束没有效果
+2. 表级约束：除了非空、默认，其它的都支持
+
+### 创建表时添加约束
+
+#### 添加列级约束
+
+```sql
+CREATE TABLE stuinfo(
+    id INT PRIMARY KEY,#主键
+    stuName VARCHAR(20) NOT NULL,#非空
+    gender CHAR(1) CHECK(gender='男' OR gender='女'),#检查，mysql不支持
+    seat INT UNIQUE,#唯一
+    age INT DEFAULT 18,#默认
+    majorId INT REFERENCES major(id) #外键，没有效果
+);
+CREATE TABLE major(
+    id INT PRIMARY KEY,
+    majorName VARCHAR(20)
+);
+DESC stuinfo;
+SHOW INDEX FROM stuinfo;#查看stuinfo中的所有索引，包括主键、外键、唯一
+```
+
+1. 直接在字段名和类型后面追加 约束类型即可
+2. 只支持：默认、非空、主键、唯一
+
+#### 添加表级约束
+
+```sql
+CREATE TABLE stuinfo(
+    id INT,
+    stuName VARCHAR(20),
+    gender CHAR(1),
+    seat INT,
+    age INT,
+    majorId INT,
+    CONSTRAINT pk PRIMARY KEY(id),#主键
+    CONSTRAINT uq UNIQUE(seat),#唯一键
+    CONSTRAINT ck CHECK(gender = '男' OR gender = '女'),#检查
+    CONSTRAINT fk_stuinfo_major FOREIGN KEY(majorid) REFERENCES major(id)#外键
+);
+```
+
+1. 在各个字段的最下面添加表级约束，`[constraint 约束名] 约束类型(字段名)`
+
+#### 主键和唯一键的对比
+
+| 约束 | 唯一性 | 是否允许为空           | 一个表中可以有多少该约束 | 是否允许组合                            |
+| ---- | ------ | ---------------------- | ------------------------ | --------------------------------------- |
+| 主键 | 是     | 否                     | 至多有1个                | 允许，PRIMARY KEY(id,stuname)，但不推荐 |
+| 唯一 | 是     | 是（只允许有一个null） | 可以有多个               | 允许，UNIQUE(seat,seat2)，但不推荐      |
 
