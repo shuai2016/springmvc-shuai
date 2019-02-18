@@ -915,10 +915,153 @@ CREATE TABLE stuinfo(
 
 1. 在各个字段的最下面添加表级约束，`[constraint 约束名] 约束类型(字段名)`
 
-#### 主键和唯一键的对比
+### 主键和唯一键的对比
 
 | 约束 | 唯一性 | 是否允许为空           | 一个表中可以有多少该约束 | 是否允许组合                            |
 | ---- | ------ | ---------------------- | ------------------------ | --------------------------------------- |
 | 主键 | 是     | 否                     | 至多有1个                | 允许，PRIMARY KEY(id,stuname)，但不推荐 |
 | 唯一 | 是     | 是（只允许有一个null） | 可以有多个               | 允许，UNIQUE(seat,seat2)，但不推荐      |
+
+### 外键的特点
+
+1. 要求在从表设置外键关系
+2. 从表的外键列的类型和主表的关联列的类型要求一致或兼容，名称无所谓
+3. 主表的关联列必须是一个key（一般是主键或唯一）
+4. 插入数据时，先插入主表，再插入从表，删除数据时，先删除从表，再删除主表
+
+### 修改表时添加约束
+
+```sql
+CREATE TABLE stuinfo(
+    id INT,
+    stuname VARCHAR(20),
+    gender CHAR(1),
+    seat INT,
+    age INT,
+    majorId INT
+);
+#1、添加非空约束
+ALTER TABLE stuinfo MODIFY COLUMN stuname VARCHAR(20) NOT NULL;
+#2、添加默认约束
+ALTER TABLE stuinfo MODIFY COLUMN age INT DEFAULT 18;
+#3、添加主键
+#列级约束
+ALTER TABLE stuinfo MODIFY COLUMN id INT PRIMARY KEY;
+#表级约束
+ALTER TABLE stuinfo ADD PRIMARY KEY(id);
+#4、添加唯一
+#列级约束
+ALTER TABLE stuinfo MODIFY COLUMN seat INT UNIQUE;
+#表级约束
+ALTER TABLE stuinfo ADD UNIQUE(seat);
+#5、添加外键
+ALTER TABLE stuinfo ADD [CONSTRAINT fk_stuinfo_major] FOREIGN KEY(majorid) REFERENCES major(id);
+```
+
+1. 添加列级约束：`alter table 表名 modify column 字段名 字段类型 新约束；`
+2. 添加表级约束：`alter table 表名 add [constraint 约束名] 约束类型(字段名) [外键的引用]`
+
+### 修改表时删除约束
+
+1. 删除非空约束
+
+   ```sql
+   ALTER TABLE stuinfo MODIFY COLUMN stuname VARCHAR(20) NULL;
+   ```
+
+2. 删除默认约束
+
+   ```sql
+   ALTER TABLE stuinfo MODIFY COLUMN age INT;
+   ```
+
+3. 删除主键
+
+   ```sql
+   ALTER TABLE stuinfo DROP PRIMARY KEY;
+   ```
+
+4. 删除唯一
+
+   ```sql
+   ALTER TABLE stuinfo DROP INDEX seat;
+   ```
+
+5. 删除外键
+
+   ```sql
+   ALTER TABLE stuinfo DROP FOREIGN KEY fk_stuinfo_major;
+   ```
+
+## 标识列
+
+又称为自增长列，含义：可以不用手动的插入值，系统提供默认的序列值
+
+### 创建表时设置标识列
+
+```sql
+CREATE TABLE tab_identity(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(20)
+)
+```
+
+### 自增长相关信息
+
+```sql
+SHOW VARIABLES LIKE '%auto_increment%';
+```
+
+### 设置步长
+
+```sql
+SET auto_increment_increment=3;
+```
+
+1. 可以手动插入一条数据，设置其实值
+
+### 特点
+
+1. 标识列必须和主键搭配吗？不一定，但要求是一个key
+2. 一个表中可以有几个标识列？至多一个
+3. 标识列的类型只能是数值型
+
+### 修改表时设置标识列
+
+```sql
+ALTER TABLE tab_identity MODIFY COLUMN id INT PRIMARY KEY AUTO_INCREMENT;
+```
+
+### 修改表时删除标识列
+
+```sql
+ALTER TABLE tab_identity MODIFY COLUMN id INT;
+```
+
+# 事务控制语言TCL
+
+Transaction Control Language
+
+## 事务
+
+一个或一组sql语句组成一个执行单元，这个执行单元要么全部执行，要么全部不执行。
+
+## 存储引擎（表类型）
+
+1. 在mysql中的数据用各种不同的技术存储在文件（或内存）中
+
+2. 查看mysql支持的存储引擎
+
+   ```sql
+   show engines;
+   ```
+
+3. innodb支持事务，而myisam、memory等不支持事务
+
+## 事务的ACID属性
+
+1. 原子性（Atomicity）：事务是一个不可分割的工作单位。
+2. 一致性（Consistency）：事务必须使数据库从一个一致性状态转换到另外一个一致性状态。
+3. 隔离性（Isolation）：一个事务的执行不能被其它事务干扰。
+4. 持久性（Durability）：一个事务一旦被提交，它对数据库中数据的改变就是永久性的。
 
