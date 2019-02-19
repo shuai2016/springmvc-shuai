@@ -1065,3 +1065,125 @@ Transaction Control Language
 3. 隔离性（Isolation）：一个事务的执行不能被其它事务干扰。
 4. 持久性（Durability）：一个事务一旦被提交，它对数据库中数据的改变就是永久性的。
 
+## 事务的创建
+
+### 隐式事务
+
+事务没有明显的开启和结束的标记，比如insert、update、delete语句
+
+### 显式事务
+
+事务具有明显的开启和结束的标记，前提：必须先设置自动提交功能为禁用
+
+### 事务自动提交
+
+1. 查看自动提交
+
+   ```sql
+   SHOW VARIABLES LIKE 'autocommit';
+   ```
+
+2. 禁用自动提交（仅对当前事务有效）
+
+   ```sql
+   set autocommit=0;
+   ```
+
+### 开启事务步骤
+
+```sql
+#1、开启步骤
+set autocommit=0;
+start transaction;#可选的
+#2、编写事务中的sql语句（select insert update delete）
+语句1;
+语句2;
+...
+#3、结束事务
+commit;#提交事务
+rollback;#回滚事务
+
+#SAVEPOINT设置保存点
+set autocommit=0;
+start transaction;
+语句1;
+SAVEPOINT a;
+语句2;
+rollback to a;#回滚到保存点，savepoint只搭配rollback使用
+
+```
+
+## 数据库的隔离级别
+
+1. 没有采取必要的隔离机制导致的并发问题
+   1. 脏读
+   2. 不可重复读
+   3. 幻读
+
+2. 数据库的事务隔离级别
+   1. Oracle支持的2种隔离级别：READ COMMITED（默认），SERIALIZABLE
+   2. MySql支持4种事务隔离级别：READ UNCOMMITTED（读未提交数据），READ COMMITED（读已提交），REPEATABLE READ（可重复读，默认），SERIALIZABLE（串行化）
+
+3. 查看当前的事务隔离级别
+
+   ```sql
+   SELECT @@tx_isolation;
+   ```
+
+4. 设置MySql事务隔离级别（全局/当前会话）
+
+   ```sql
+   set session|global transaction isolation level read uncommitted;
+   ```
+
+5. 事务的隔离级别与出现的现象
+
+   |                  | 脏读 | 不可重复读 | 幻读 |
+   | ---------------- | ---- | ---------- | ---- |
+   | read uncommitted | 是   | 是         | 是   |
+   | read committed   | 否   | 是         | 是   |
+   | repeatable read  | 否   | 否         | 是   |
+   | serializable     | 否   | 否         | 否   |
+
+# 视图
+
+MySql从5.0.1版本开始提供视图功能。应用场景：
+
+1. 多个地方用到同样的查询结果
+2. 该查询结果使用的sql语句较复杂
+
+## 创建视图
+
+```sql
+create view 视图名
+as
+查询语句;
+```
+
+## 视图的好处
+
+1. 重用sql语句
+2. 简化复杂的sql操作，不必知道它的查询细节
+3. 保护数据，提高安全性
+
+## 视图的修改
+
+1. 方式一
+
+   ```sql
+   create or replace view 视图名
+   as
+   查询语句;
+   ```
+
+2. 方式二
+
+   ```sql
+   alter view 视图名
+   as
+   查询语句;
+   ```
+
+
+
+   	
