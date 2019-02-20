@@ -854,11 +854,6 @@ text、blob（较长的二进制数据）
 5. CHECK：检查约束【mysql中不支持】
 6. FOREIGN KEY：外键，用于限制两个表的关系，用于保证该字段的值必须来自于主表的关联列的值，在从表添加外键约束，用于引用主表中某列的值
 
-### 添加约束的时机：
-
-1. 创建表时
-2. 修改表时
-
 ### 约束的添加分类
 
 ```sql
@@ -893,7 +888,7 @@ DESC stuinfo;
 SHOW INDEX FROM stuinfo;#查看stuinfo中的所有索引，包括主键、外键、唯一
 ```
 
-1. 直接在字段名和类型后面追加 约束类型即可
+1. 直接在字段名和类型后面追加约束类型即可
 2. 只支持：默认、非空、主键、唯一
 
 #### 添加表级约束
@@ -914,6 +909,7 @@ CREATE TABLE stuinfo(
 ```
 
 1. 在各个字段的最下面添加表级约束，`[constraint 约束名] 约束类型(字段名)`
+2. 给主键起约束名无效
 
 ### 主键和唯一键的对比
 
@@ -929,6 +925,20 @@ CREATE TABLE stuinfo(
 3. 主表的关联列必须是一个key（一般是主键或唯一）
 4. 插入数据时，先插入主表，再插入从表，删除数据时，先删除从表，再删除主表
 
+### 有外键关联的主表数据删除
+
+1. 级联删除
+
+   ```sql
+   ALTER TABLE stuinfo ADD CONSTRAINT fk_stuinfo_major FOREIGN KEY(majorid) REFERENCES major(id) ON DELETE CASCADE;
+   ```
+
+2. 级联置空
+
+   ```sql
+   ALTER TABLE stuinfo ADD CONSTRAINT fk_stuinfo_major FOREIGN KEY(majorid) REFERENCES major(id) ON DELETE SET NULL;
+   ```
+
 ### 修改表时添加约束
 
 ```sql
@@ -940,26 +950,58 @@ CREATE TABLE stuinfo(
     age INT,
     majorId INT
 );
-#1、添加非空约束
-ALTER TABLE stuinfo MODIFY COLUMN stuname VARCHAR(20) NOT NULL;
-#2、添加默认约束
-ALTER TABLE stuinfo MODIFY COLUMN age INT DEFAULT 18;
-#3、添加主键
-#列级约束
-ALTER TABLE stuinfo MODIFY COLUMN id INT PRIMARY KEY;
-#表级约束
-ALTER TABLE stuinfo ADD PRIMARY KEY(id);
-#4、添加唯一
-#列级约束
-ALTER TABLE stuinfo MODIFY COLUMN seat INT UNIQUE;
-#表级约束
-ALTER TABLE stuinfo ADD UNIQUE(seat);
-#5、添加外键
-ALTER TABLE stuinfo ADD [CONSTRAINT fk_stuinfo_major] FOREIGN KEY(majorid) REFERENCES major(id);
 ```
 
-1. 添加列级约束：`alter table 表名 modify column 字段名 字段类型 新约束；`
-2. 添加表级约束：`alter table 表名 add [constraint 约束名] 约束类型(字段名) [外键的引用]`
+1. 添加非空约束
+
+   ```sql
+   ALTER TABLE stuinfo MODIFY COLUMN stuname VARCHAR(20) NOT NULL;
+   ```
+
+2. 添加默认约束
+
+   ```sql
+   ALTER TABLE stuinfo MODIFY COLUMN age INT DEFAULT 18;
+   ```
+
+3. 添加主键
+
+   1. 列级约束
+
+      ```sql
+      ALTER TABLE stuinfo MODIFY COLUMN id INT PRIMARY KEY;
+      ```
+
+   2. 表级约束
+
+      ```sql
+      ALTER TABLE stuinfo ADD PRIMARY KEY(id);
+      ```
+
+4. 添加唯一
+
+   1. 列级约束
+
+      ```sql
+      ALTER TABLE stuinfo MODIFY COLUMN seat INT UNIQUE;
+      ```
+
+   2. 表级约束
+
+      ```sql
+      ALTER TABLE stuinfo ADD UNIQUE(seat);
+      ```
+
+5. 添加外键
+
+   ```sql
+   ALTER TABLE stuinfo ADD [CONSTRAINT fk_stuinfo_major] FOREIGN KEY(majorid) REFERENCES major(id);
+   ```
+
+6. 添加列级约束和表级约束的语法
+
+   1. 添加列级约束：`alter table 表名 modify column 字段名 字段类型 新约束；`
+   2. 添加表级约束：`alter table 表名 add [constraint 约束名] 约束类型(字段名) [外键的引用]`
 
 ### 修改表时删除约束
 
@@ -995,7 +1037,7 @@ ALTER TABLE stuinfo ADD [CONSTRAINT fk_stuinfo_major] FOREIGN KEY(majorid) REFER
 
 ## 标识列
 
-又称为自增长列，含义：可以不用手动的插入值，系统提供默认的序列值
+又称为自增长列，含义：可以不用手动的插入值，系统提供默认的序列值。默认从1开始，步长为1
 
 ### 创建表时设置标识列
 
@@ -1006,7 +1048,7 @@ CREATE TABLE tab_identity(
 )
 ```
 
-### 自增长相关信息
+### 查看自增长相关信息
 
 ```sql
 SHOW VARIABLES LIKE '%auto_increment%';
@@ -1018,11 +1060,11 @@ SHOW VARIABLES LIKE '%auto_increment%';
 SET auto_increment_increment=3;
 ```
 
-1. 可以手动插入一条数据，设置其实值
+1. 不能用配置修改起始值，可以手动插入一条数据，设置起始值
 
 ### 特点
 
-1. 标识列必须和主键搭配吗？不一定，但要求是一个key
+1. 标识列必须和主键搭配吗？不一定，但要求是一个key（mysql）
 2. 一个表中可以有几个标识列？至多一个
 3. 标识列的类型只能是数值型
 
@@ -1184,6 +1226,82 @@ as
    查询语句;
    ```
 
+## 删除视图
+
+```sql
+drop view 视图名,视图名,...;
+```
+
+## 查看视图
+
+```sql
+DESC 视图名;
+SHOW CREATE VIEW 视图名[\G];
+```
+
+## 视图数据的增删改
+
+### 具备以下特点的视图不允许更新
+
+1. 包含以下关键字的sql语句：分组函数、distinct、group by、having、union、union all
+2. 常量视图
+3. select中包含子查询
+4. join（可以update）
+5. from一个不能更新的视图
+6. where子句的子查询引用了from子句中的表
 
 
-   	
+
+
+
+# 变量
+
+## 系统变量
+
+### 说明
+
+变量由系统提供，不是用户定义，属于服务器层面
+
+### 语法
+
+1. 查看所有的系统变量
+
+   ```sql
+   show global|[session] variables;
+   ```
+
+2. 查看满足条件的部分系统变量
+
+   ```sql
+   show global|[session] variables like '%char%';
+   ```
+
+3. 查看指定的某个系统变量的值
+
+   ```sql
+   select @@global|[session].系统变量名;
+   ```
+
+4. 为某个系统变量赋值
+
+   1. 方式一
+
+      ```sql
+      set global|[session] 系统变量名 = 值;
+      ```
+
+   2. 方式二
+
+      ```sql
+      set @@global|[session].系统变量名 = 值;
+      ```
+
+### 分类
+
+1. 全局变量
+2. 会话变量
+
+## 自定义变量
+
+1. 用户变量
+2. 局部变量
