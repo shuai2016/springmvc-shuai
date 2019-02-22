@@ -1241,7 +1241,7 @@ SHOW CREATE VIEW 视图名[\G];
 
 ## 视图数据的增删改
 
-### 具备以下特点的视图不允许更新
+具备以下特点的视图不允许更新
 
 1. 包含以下关键字的sql语句：分组函数、distinct、group by、having、union、union all
 2. 常量视图
@@ -1250,58 +1250,497 @@ SHOW CREATE VIEW 视图名[\G];
 5. from一个不能更新的视图
 6. where子句的子查询引用了from子句中的表
 
-
-
-
-
 # 变量
 
 ## 系统变量
 
-### 说明
+1. 说明，变量由系统提供，不是用户定义，属于服务器层面
 
-变量由系统提供，不是用户定义，属于服务器层面
-
-### 语法
-
-1. 查看所有的系统变量
-
-   ```sql
-   show global|[session] variables;
-   ```
-
-2. 查看满足条件的部分系统变量
-
-   ```sql
-   show global|[session] variables like '%char%';
-   ```
-
-3. 查看指定的某个系统变量的值
-
-   ```sql
-   select @@global|[session].系统变量名;
-   ```
-
-4. 为某个系统变量赋值
-
-   1. 方式一
+2. 语法
+   1. 查看所有的系统变量
 
       ```sql
-      set global|[session] 系统变量名 = 值;
+      show global|[session] variables;
       ```
 
-   2. 方式二
+   2. 查看满足条件的部分系统变量
 
       ```sql
-      set @@global|[session].系统变量名 = 值;
+      show global|[session] variables like '%char%';
       ```
 
-### 分类
+   3. 查看指定的某个系统变量的值
 
-1. 全局变量
-2. 会话变量
+      ```sql
+      select @@global|[session].系统变量名;
+      ```
+
+   4. 为某个系统变量赋值
+
+      1. 方式一
+
+         ```sql
+         set global|[session] 系统变量名 = 值;
+         ```
+
+      2. 方式二
+
+         ```sql
+         set @@global|[session].系统变量名 = 值;
+         ```
+
+3. 分类
+
+   1. 全局变量，服务器每次重启将为所有的全局变量赋初始值，针对于所有的会话（连接）有效，但不能跨重启
+   2. 会话变量，仅仅针对于当前会话（连接）有效
 
 ## 自定义变量
 
 1. 用户变量
+
+   1. 作用域：针对于当前会话（连接）有效，同于会话变量的作用域，应用在任何地方，也就是begin end里面或begin end外面
+
+   2. 声明并初始化
+
+      ```sql
+      SET @用户变量名=值;
+      SET @用户变量名:=值;
+      SELECT @用户变量名:=值;
+      ```
+
+   3. 赋值（更新用户变量的值）
+
+      1. 通过SET或SELECT，重新初始化
+
+      2. 通过SELECT INTO
+
+         ```sql
+         SELECT 字段 INTO @变量名
+         FROM 表;
+         #示例
+         SET @count=1;
+         SELECT COUNT(*) INTO @count
+         FROM employees;
+         ```
+
+   4. 使用（查看用户变量名的值）
+
+      ```sql
+      SELECT @用户变量名;
+      ```
+
 2. 局部变量
+
+   1. 作用域：仅仅在定义它的begin end中有效，且只能放在第一句
+
+   2. 声明
+
+      ```sql
+      DECLARE 变量名 类型;
+      DECLARE 变量名 类型 DEFAULT 值;
+      ```
+
+   3. 赋值
+
+      1. 通过SET或SELECT
+
+         ```sql
+         SET 局部变量名=值;
+         SET 局部变量名:=值;
+         SELECT @局部变量名:=值;
+         ```
+
+      2. 通过SELECT INTO
+
+         ```sql
+         SELECT 字段 INTO 局部变量名
+         FROM 表;
+         ```
+
+      3. 使用
+
+         ```sql
+         SELECT 局部变量名;
+         ```
+
+# 存储过程和函数
+
+一组预先编译好的SQL语句的集合，理解成批处理语句，类似于java中的方法
+
+1. 提高代码的重用性
+2. 简化操作
+3. 减少了编译次数并且减少了和数据库服务器的连接次数，提高了效率
+
+## 存储过程
+
+### 创建语法
+
+```sql
+CREATE PROCEDURE 存储过程名(参数列表)
+BEGIN
+	存储过程体(一组合法的SQL语句)
+END
+```
+
+注意：
+
+1. 参数列表包含三部分：
+
+   参数模式  参数名  参数类型
+
+   举例：`IN stuname VARCHAR(20)`
+
+   参数模式：
+
+   1. IN：该参数可以作为输入，也就是该参数需要调用方传入值
+   2. OUT：该参数可以作为输出，也就是该参数可以作为返回值
+   3. INOUT：该参数既可以作为输入又可以作为输出，也就是该参数既需要传入值，又可以返回值
+
+2. 如果存储过程体仅仅只有一句话，BEGIN END 可以省略
+
+3. 存储过程体中的每条SQL语句的结尾要求必须加分号。
+
+   存储过程的结尾可以使用 DELIMITER重新设置
+
+   语法：`DELIMITER  结束标记`
+
+   举例：`DELIMITER  $`
+
+### 调用语法
+
+```sql
+CALL 存储过程名(实参列表);
+```
+
+### 空参列表
+
+```sql
+#创建
+DELIMITER $
+CREATE PROCEDURE myp1()
+BEGIN
+	INSERT INTO admin(username,password)
+	values('john1','0001'),('john2','0002');
+END $
+#调用
+CALL myp1()$
+```
+
+### IN模式参数
+
+```sql
+#创建
+CREATE PROCEDURE myp2(IN beautyName VARCHAR(20))
+BEGIN
+	SELECT bo.*
+	FROM boys bo
+	RIGHT JOIN beauty b ON bo.id = b.boyfriend_id
+	WHERE b.name = beautyName;
+END $
+#调用
+CALL myp2('小昭')$
+
+#创建
+CREATE PROCEDURE myp3(IN username VARCHAR(20),IN password varchar(20))
+BEGIN
+	DECLARE result INT DEFAULT 0;
+	
+	SELECT COUNT(*) INTO result
+	FROM admin
+	WHERE admin.username = username
+	AND admin.password = password;
+	
+	SELECT IF(result>0,'成功','失败');
+END $
+#调用
+CALL myp3('张飞','8888')$
+```
+
+### OUT模式参数
+
+```sql
+#根据女神名，返回对应的男神名
+CREATE PROCEDURE myp5(IN beautyName VARCHAR(20),OUT boyName VARCHAR(20))
+BEGIN
+	SELECT bo.boyName INTO boyName
+	FROM boys bo
+	INNER JOIN beauty b ON bo.id = b.boyfriend_id
+	WHERE b.name = beautyName;
+END $
+#调用
+CALL myp5('小昭',@bName)$
+SELECT @bName$
+
+#根据女神名，返回对应的男神名和男神魅力值
+CREATE PROCEDURE myp6(IN beautyName VARCHAR(20),OUT boyName VARCHAR(20),OUT userCP INT)
+BEGIN
+	SELECT bo.boyName,bo.userCP INTO boyName,userCP #多个变量同时在一个INTO后面赋值
+	FROM boys bo
+	INNER JOIN beauty b ON bo.id = b.boyfriend_id
+	WHERE b.name = beautyName;
+END $
+#调用
+CALL myp6('小昭',@bName,@userCP)$
+SELECT @bName,@userCP$
+```
+
+### INOUT模式参数
+
+```sql
+#传入a和b两个值，最终a和b都翻倍并返回
+CREATE PROCEDURE myp8(INOUT a INT,INOUT b INT)
+BEGIN
+	SET a = a*2;
+	SET b = b*2;
+END $
+#调用
+SET @m = 10$
+SET @n = 20$
+CALL myp8(@m,@n)$
+SELECT @m,@n$
+```
+
+### 删除存储过程
+
+```sql
+DROP PROCEDURE 存储过程名;#一次只能删除一个存储过程
+```
+
+### 查看存储过程
+
+```sql
+SHOW CREATE PROCEDURE myp2;
+```
+
+## 函数
+
+### 与存储过程的区别
+
+1. 存储过程：可以有0个返回，也可以有多个返回，适合做批量插入、批量更新
+2. 函数：有且仅有1个返回，适合做处理数据后返回一个结果
+
+### 创建语法
+
+```sql
+CREATE FUNCTION 函数名(参数列表) RETURNS 返回类型
+BEGIN
+	函数体
+END
+```
+
+注意：
+
+1. 参数列表包含两部分
+
+   参数名 参数类型
+
+2. 函数体
+
+   肯定会有return语句，如果没有会报错
+
+   如果return语句没有放在函数体的最后也不报错，但不建议
+
+3. 函数体中仅有一句话，则可以省略begin end
+
+4. 使用 delimiter 语句设置结束标记
+
+### 调用语法
+
+```sql
+SELECT 函数名(参数列表)
+```
+
+### 无参有返回
+
+```sql
+#创建
+CREATE FUNCTION myf1() RETURNS INT
+BEGIN
+	DECLARE c INT DEFAULT 0;#定义局部变量
+	SELECT COUNT(*) INTO c#赋值
+	FROM employees;
+	RETURN c;
+END $
+#调用
+SELECT myf1()$
+```
+
+### 有参有返回
+
+```sql
+#创建
+CREATE FUNCTION myf2(empName VARCHAR(20)) RETURNS DOUBLE
+BEGIN
+	SET @sal = 0;#定义用户变量
+	SELECT salary INTO @sal #赋值
+	FROM employees
+	WHERE last_name = empName;
+	RETURN @sal;
+END $
+#调用
+SELECT myf2('kochhar')$
+```
+
+### 查看函数
+
+```sql
+SHOW CREATE FUNCTION myf3;
+```
+
+### 删除函数
+
+```sql
+DROP FUNCTION myf3;
+```
+
+# 流程控制结构
+
+顺序结构：程序从上往下依次执行
+
+分支结构：程序从两条或多条路径中选择一条去执行
+
+循环结构：程序在满足一定条件的基础上，重复执行一段代码
+
+## 分支结构
+
+1. if函数
+
+2. case结构
+
+   1. 可以作为表达式，镶嵌在其它语句中使用，可以放在任何地方，BEGIN END 中或 BEGIN END 的外面
+   2. 可以作为独立的语句去使用，只能放在 BEGIN END 中
+   3. ELSE 可以省略，如果ELSE省略了，并且所有WHEN条件都不满足，则返回NULL
+
+   ```sql
+   #创建存储过程，根据传入的成绩，来显示等级，比如传入的成绩：90-100，显示A，80-90，显示B，60-80，显示C，否则，显示D
+   DELIMITER $
+   CREATE PROCEDURE test_case(IN SCORE INT)
+   BEGIN
+   	CASE
+   	WHEN score >= 90 AND score <=100 THEN SELECT 'A';
+   	WHEN score >= 80 THEN SELECT 'B';
+   	WHEN score >= 60 THEN SELECT 'C';
+   	ELSE SELECT 'D';
+   	END CASE;
+   END $
+   #调用
+   CALL test_case(95)$
+   ```
+
+3. if结构
+
+   ```sql
+   if 条件1 then 语句1;
+   elseif 条件2 then 语句2;
+   ...
+   [else 语句n;]
+   end if;
+   ```
+
+   1. 应用在begin end中
+
+   ```sql
+   DELIMITER $
+   CREATE FUNCTION test_if(SCORE INT) RETURNS CHAR
+   BEGIN
+   	IF score>=90 AND score<=100 THEN RETURN 'A';
+   	ELSEIF score>=80 THEN RETURN 'B';
+   	ELSEIF score>=60 THEN RETURN 'C';
+   	ELSE RETURN 'D';
+   	END IF;
+   END $
+   #调用
+   SELECT test_if(95)$
+   ```
+
+## 循环结构
+
+位置：BEGIN END中
+
+### 分类
+
+1. while
+
+   ```sql
+   [标签:]while 循环条件 do
+   	循环体;
+   end while [标签];
+   #先判断后执行
+   ```
+
+2. loop
+
+   ```sql
+   [标签:]loop
+       循环体;
+   end loop [标签];
+   #可以用来模拟简单的死循环
+   ```
+
+3. repeat
+
+   ```sql
+   [标签:]repeat
+   	循环体;
+   	until 结束循环的条件
+   end repeat [标签];
+   #先执行后判断
+   ```
+
+### 循环控制
+
+1. iterate：类似于 continue，继续，结束本次循环，继续下一次
+2. leave：类似于 break，跳出，结束当前所在的循环
+
+### 无循环控制语句
+
+```sql
+#批量插入，根据次数插入到admin表中多条记录
+CREATE PROCEDURE pro_while1(IN insertCount INT)
+BEGIN
+	DECLARE i INT DEFAULT 1;
+	WHILE i < insertCount DO
+		INSERT INTO admin(username,password) VALUES(CONCAT('Rose',i),'666');
+		SET i=i+1;
+	END WHILE;
+END $
+#调用
+CALL pro_while1(100)$
+```
+
+### 包含leave语句
+
+```sql
+#批量插入，根据次数插入到admin表中多条记录
+CREATE PROCEDURE pro_while1(IN insertCount INT)
+BEGIN
+	DECLARE i INT DEFAULT 1;
+	a:WHILE i < insertCount DO
+		INSERT INTO admin(username,password) VALUES(CONCAT('John',i),'0000');
+		IF i>=20 THEN LEAVE a;
+		END IF;
+		SET i=i+1;
+	END WHILE a;
+END $
+#调用
+CALL pro_while1(100)$
+```
+
+### 包含iterate语句
+
+```sql
+#批量插入，根据次数插入到admin表中多条记录
+CREATE PROCEDURE pro_while1(IN insertCount INT)
+BEGIN
+	DECLARE i INT DEFAULT 0;
+	a:WHILE i < insertCount DO
+		SET i=i+1;
+		IF MOD(i,2)!=0 THEN ITERATE a;
+		END IF;
+		INSERT INTO admin(username,password) VALUES(CONCAT('xiaohua',i),'0000');
+	END WHILE a;
+END $
+#调用
+CALL pro_while1(100)$
+```
+
